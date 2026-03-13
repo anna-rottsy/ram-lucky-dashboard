@@ -518,7 +518,21 @@
         .catch-message p {
             font-size: 1.3rem;
             color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .catch-message .bonus-text {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+            color: var(--gold);
+        }
+
+        .catch-message .difficulty-text {
+            font-size: 0.9rem;
+            opacity: 0.7;
             margin-bottom: 2rem;
+            color: #fff;
         }
 
         .catch-message .close-btn {
@@ -549,6 +563,24 @@
             border: 1px solid var(--gold);
             font-size: 0.9rem;
             z-index: 998;
+        }
+
+        .difficulty-level {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid var(--gold);
+            font-size: 0.9rem;
+            z-index: 998;
+        }
+
+        .difficulty-level .stars {
+            color: var(--gold);
+            margin-left: 5px;
         }
 
         .distance-badge {
@@ -597,34 +629,86 @@
             0%, 100% { opacity: 0.7; }
             50% { opacity: 1; }
         }
+
+        /* Faith Progress Bar */
+        .faith-progress {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid var(--gold);
+            z-index: 998;
+        }
+
+        .faith-progress .label {
+            font-size: 0.8rem;
+            color: var(--gold);
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .faith-progress .bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .faith-progress .fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-green), var(--gold));
+            border-radius: 5px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+        }
     </style>
 </head>
 <body>
 
     <div class="background-fx" id="bg-fx"></div>
     
-    <!-- Шляпа -->
+    <!-- Hat -->
     <div class="leprechaun-hat" id="magicHat">🎩</div>
     
-    <!-- Контейнер для падающих монет -->
+    <!-- Falling Coins Container -->
     <div class="falling-coins-container" id="coins-container"></div>
     
-    <!-- Сообщение о поимке -->
+    <!-- Catch Message -->
     <div class="catch-message" id="catch-message">
-        <h2>🍀 ПОЗДРАВЛЯЕМ! 🍀</h2>
-        <p>Вы напали на след лепрекона!</p>
-        <p style="font-size: 1rem; opacity: 0.8;">Теперь ваш шанс найти золото увеличен!</p>
-        <button class="close-btn" onclick="closeCatchMessage()">Забрать награду</button>
+        <h2>🍀 CONGRATULATIONS! 🍀</h2>
+        <p>You've caught the Leprechaun's Hat!</p>
+        <p class="bonus-text">✨ +15% Faith Bonus Applied! ✨</p>
+        <p class="difficulty-text" id="difficulty-warning">⚠️ Difficulty Increased!</p>
+        <button class="close-btn" onclick="closeCatchMessage()">CLOSE</button>
     </div>
     
-    <!-- Счётчик поимок -->
+    <!-- Catch Counter -->
     <div class="catch-count" id="catch-count">
-        <i class="fas fa-hat-cowboy"></i> Поймано шляп: <span id="catch-number">0</span>
+        <i class="fas fa-hat-cowboy"></i> Hats Caught: <span id="catch-number">0</span>
     </div>
     
-    <!-- Подсказка -->
+    <!-- Difficulty Level -->
+    <div class="difficulty-level">
+        <i class="fas fa-fire"></i> Difficulty: <span id="difficulty-text">Easy</span><span class="stars" id="difficulty-stars">⭐</span>
+    </div>
+    
+    <!-- Faith Progress Bar -->
+    <div class="faith-progress">
+        <div class="label">🍀 Faith in Magic: <span id="faith-display">0</span>%</div>
+        <div class="bar">
+            <div class="fill" id="faith-fill" style="width: 0%"></div>
+        </div>
+    </div>
+    
+    <!-- Hint -->
     <div class="hat-hint">
-        ✨ Поймай убегающую шляпу лепрекона! ✨
+        ✨ Catch the Running Leprechaun Hat! ✨
     </div>
 
     <div class="container">
@@ -666,9 +750,9 @@
 
                     <div class="form-group">
                         <label>Belief in Magic Level</label>
-                        <input type="range" id="faith" min="1" max="100" value="50" style="width:100%; accent-color: var(--gold);">
+                        <input type="range" id="faith" min="0" max="100" value="0" style="width:100%; accent-color: var(--gold);" disabled>
                         <div style="text-align: right; font-size: 0.8rem; color: #888;">
-                            Current: <span id="faithVal">50</span>%
+                            Catch hats to increase faith!
                         </div>
                     </div>
 
@@ -719,7 +803,7 @@
     </div>
 
     <script>
-        // Полный список стран
+        // Countries Database
         const countries = [
             { code: 'ie', name: 'Ireland', distance: 0 },
             { code: 'gb', name: 'United Kingdom', distance: 450 },
@@ -830,26 +914,57 @@
         let selectedCountry = null;
         let catchCount = 0;
         let hatCaught = false;
+        let faith = 0;
+        let difficultyLevel = 1;
 
-        // Инициализация
+        // Difficulty Settings
+        const difficultySettings = {
+            1: { name: 'Easy', stars: '⭐', detectionRange: 150, jumpDistance: 200, faithBonus: 15 },
+            2: { name: 'Medium', stars: '⭐⭐', detectionRange: 120, jumpDistance: 250, faithBonus: 15 },
+            3: { name: 'Hard', stars: '⭐⭐⭐', detectionRange: 100, jumpDistance: 300, faithBonus: 15 },
+            4: { name: 'Expert', stars: '⭐⭐⭐⭐', detectionRange: 80, jumpDistance: 350, faithBonus: 15 },
+            5: { name: 'Legendary', stars: '⭐⭐⭐⭐⭐', detectionRange: 60, jumpDistance: 400, faithBonus: 15 }
+        };
+
+        // Initialization
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🍀 Page loaded!');
             initAutocomplete();
             createMagicalEffects();
             initHat();
+            updateFaithDisplay();
+            updateDifficultyDisplay();
         });
 
-        // Инициализация шляпы
+        function getDifficulty() {
+            // Difficulty increases every 3 catches, max level 5
+            return Math.min(5, Math.floor(catchCount / 3) + 1);
+        }
+
+        function updateDifficultyDisplay() {
+            difficultyLevel = getDifficulty();
+            const settings = difficultySettings[difficultyLevel];
+            document.getElementById('difficulty-text').textContent = settings.name;
+            document.getElementById('difficulty-stars').textContent = settings.stars;
+        }
+
+        function updateFaithDisplay() {
+            document.getElementById('faith').value = faith;
+            document.getElementById('faith-display').textContent = faith;
+            document.getElementById('faith-fill').style.width = faith + '%';
+        }
+
+        // Hat Initialization
         function initHat() {
             const hat = document.getElementById('magicHat');
             if (!hat) return;
             
-            // Начальная позиция
             moveHatToRandomPosition();
             
-            // Шляпа убегает от курсора
             document.addEventListener('mousemove', function(e) {
                 if (hatCaught) return;
+                
+                const settings = difficultySettings[getDifficulty()];
                 
                 const hatRect = hat.getBoundingClientRect();
                 const hatX = hatRect.left + hatRect.width / 2;
@@ -860,8 +975,8 @@
                     Math.pow(e.clientY - hatY, 2)
                 );
                 
-                // Если курсор ближе 150px - шляпа убегает
-                if (distance < 150) {
+                // Detection range decreases with difficulty
+                if (distance < settings.detectionRange) {
                     hat.classList.add('running');
                     moveHatAwayFromCursor(e.clientX, e.clientY);
                 } else {
@@ -869,7 +984,6 @@
                 }
             });
             
-            // Клик по шляпе
             hat.addEventListener('click', function() {
                 if (hatCaught) return;
                 catchLeprechaun();
@@ -897,25 +1011,24 @@
             const hat = document.getElementById('magicHat');
             if (!hat) return;
             
+            const settings = difficultySettings[getDifficulty()];
+            
             const hatRect = hat.getBoundingClientRect();
             const hatX = hatRect.left + hatRect.width / 2;
             const hatY = hatRect.top + hatRect.height / 2;
             
-            // Направление от курсора
             const dirX = hatX - cursorX;
             const dirY = hatY - cursorY;
             
-            // Нормализация
             const length = Math.sqrt(dirX * dirX + dirY * dirY);
             const normX = dirX / length;
             const normY = dirY / length;
             
-            // Новая позиция (убегает на 200px)
-            const jumpDistance = 200;
+            // Jump distance increases with difficulty
+            const jumpDistance = settings.jumpDistance;
             let newX = hatRect.left + normX * jumpDistance;
             let newY = hatRect.top + normY * jumpDistance;
             
-            // Ограничения экрана
             const padding = 50;
             newX = Math.max(padding, Math.min(window.innerWidth - hat.offsetWidth - padding, newX));
             newY = Math.max(padding, Math.min(window.innerHeight - hat.offsetHeight - padding, newY));
@@ -930,27 +1043,31 @@
             hatCaught = true;
             catchCount++;
             
+            const settings = difficultySettings[getDifficulty()];
+            
+            // Add faith bonus
+            faith = Math.min(100, faith + settings.faithBonus);
+            updateFaithDisplay();
+            updateDifficultyDisplay();
+            
             const hat = document.getElementById('magicHat');
             hat.classList.remove('running');
             hat.classList.add('caught');
             
-            // Обновляем счётчик
             document.getElementById('catch-number').textContent = catchCount;
             
-            // Запускаем падающие монеты
             startFallingCoins();
             
-            // Показываем сообщение
+            // Update difficulty warning message
+            const nextLevel = getDifficulty();
+            const warningText = nextLevel > 1 
+                ? `⚠️ Difficulty: ${difficultySettings[nextLevel].name} (${difficultySettings[nextLevel].stars})`
+                : '⚠️ Difficulty Increased!';
+            document.getElementById('difficulty-warning').textContent = warningText;
+            
             setTimeout(() => {
                 document.getElementById('catch-message').classList.add('show');
             }, 500);
-            
-            // Увеличиваем удачу
-            const faithInput = document.getElementById('faith');
-            if (faithInput) {
-                faithInput.value = Math.min(100, parseInt(faithInput.value) + 20);
-                document.getElementById('faithVal').textContent = faithInput.value;
-            }
         }
 
         function startFallingCoins() {
@@ -958,7 +1075,6 @@
             container.style.display = 'block';
             container.innerHTML = '';
             
-            // Создаём 50 падающих монет
             for (let i = 0; i < 50; i++) {
                 setTimeout(() => {
                     const coin = document.createElement('div');
@@ -969,14 +1085,12 @@
                     coin.style.animationDuration = (Math.random() * 2 + 2) + 's';
                     container.appendChild(coin);
                     
-                    // Удаляем монету после анимации
                     setTimeout(() => {
                         coin.remove();
                     }, 5000);
                 }, i * 100);
             }
             
-            // Скрываем контейнер через 5 секунд
             setTimeout(() => {
                 container.style.display = 'none';
             }, 6000);
@@ -985,7 +1099,6 @@
         function closeCatchMessage() {
             document.getElementById('catch-message').classList.remove('show');
             
-            // Возвращаем шляпу через 3 секунды
             setTimeout(() => {
                 const hat = document.getElementById('magicHat');
                 hat.classList.remove('caught');
@@ -994,7 +1107,7 @@
             }, 3000);
         }
 
-        // Автокомплит для стран
+        // Autocomplete for Countries
         function initAutocomplete() {
             const input = document.getElementById('country-input');
             const list = document.getElementById('autocomplete-list');
@@ -1123,13 +1236,12 @@
 
         function runCalculation() {
             const hasRainbow = document.getElementById('rainbow').checked;
-            const faith = parseInt(document.getElementById('faith').value);
             const countryData = selectedCountry;
 
             let goldChance = 15;
             
-            // Бонус за поимку шляпы
-            if (hatCaught) goldChance += 25;
+            // Faith bonus from caught hats
+            goldChance += (faith / 4);
             
             if (countryData.distance === 0) goldChance += 45;
             else if (countryData.distance < 1000) goldChance += 30;
@@ -1138,7 +1250,6 @@
             else goldChance += 5;
             
             if (hasRainbow) goldChance += 30;
-            goldChance += (faith / 4);
             goldChance += Math.random() * 10;
             
             if (goldChance > 100) goldChance = 99.9;
@@ -1200,7 +1311,7 @@
             
             myChart = new Chart(ctx, {
                 type: 'radar',
-                data: {
+                 {
                     labels: ['Gold Probability', 'Rainbow Quality', 'Belief Level', 'Leprechaun Proximity', 'Magic Field'],
                     datasets: [{
                         label: 'Luck Indicators',
