@@ -39,7 +39,6 @@
             cursor: crosshair;
         }
 
-        /* Magical Particles */
         .background-fx {
             position: fixed;
             top: 0;
@@ -160,7 +159,6 @@
             font-weight: 600;
         }
 
-        /* Autocomplete Styles */
         .autocomplete-wrapper {
             position: relative;
             width: 100%;
@@ -410,7 +408,7 @@
 
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Running Hat Styles */
+        /* Hat Styles */
         .leprechaun-hat {
             position: fixed;
             font-size: 4rem;
@@ -447,7 +445,6 @@
             100% { transform: scale(0) rotate(360deg); opacity: 0; }
         }
 
-        /* Falling Coins Animation */
         .falling-coins-container {
             position: fixed;
             top: 0;
@@ -467,21 +464,11 @@
         }
 
         @keyframes coin-fall {
-            0% { 
-                transform: translateY(-50px) rotate(0deg) scale(0);
-                opacity: 0;
-            }
-            10% {
-                opacity: 1;
-                transform: translateY(0) rotate(36deg) scale(1);
-            }
-            100% { 
-                transform: translateY(100vh) rotate(720deg) scale(1);
-                opacity: 0;
-            }
+            0% { transform: translateY(-50px) rotate(0deg) scale(0); opacity: 0; }
+            10% { opacity: 1; transform: translateY(0) rotate(36deg) scale(1); }
+            100% { transform: translateY(100vh) rotate(720deg) scale(1); opacity: 0; }
         }
 
-        /* Catch Message */
         .catch-message {
             position: fixed;
             top: 50%;
@@ -553,7 +540,6 @@
             box-shadow: 0 0 20px rgba(241, 196, 15, 0.8);
         }
 
-        /* 100% Faith Achievement Message */
         .max-faith-message {
             position: fixed;
             top: 50%;
@@ -674,7 +660,6 @@
             animation: slideIn 0.3s ease;
         }
 
-        /* Hint text */
         .hat-hint {
             position: fixed;
             bottom: 60px;
@@ -696,7 +681,6 @@
             50% { opacity: 1; }
         }
 
-        /* Faith Progress Bar */
         .faith-progress {
             position: fixed;
             bottom: 20px;
@@ -748,14 +732,9 @@
 <body>
 
     <div class="background-fx" id="bg-fx"></div>
-    
-    <!-- Hat -->
     <div class="leprechaun-hat" id="magicHat">🎩</div>
-    
-    <!-- Falling Coins Container -->
     <div class="falling-coins-container" id="coins-container"></div>
     
-    <!-- Catch Message -->
     <div class="catch-message" id="catch-message">
         <h2>🍀 CONGRATULATIONS! 🍀</h2>
         <p>You've caught the Leprechaun's Hat!</p>
@@ -764,7 +743,6 @@
         <button class="close-btn" onclick="closeCatchMessage()">CLOSE</button>
     </div>
     
-    <!-- 100% Faith Achievement Message -->
     <div class="max-faith-message" id="max-faith-message">
         <h2>🏆 MAXIMUM MAGIC ACHIEVED! 🏆</h2>
         <p>Congratulations! You've reached 100% Faith!</p>
@@ -773,17 +751,14 @@
         <button class="close-btn" onclick="closeMaxFaithMessage()">CLAIM YOUR LUCK</button>
     </div>
     
-    <!-- Catch Counter -->
     <div class="catch-count" id="catch-count">
         <i class="fas fa-hat-cowboy"></i> Hats Caught: <span id="catch-number">0</span>
     </div>
     
-    <!-- Difficulty Level -->
     <div class="difficulty-level">
         <i class="fas fa-fire"></i> Difficulty: <span id="difficulty-text">Easy</span><span class="stars" id="difficulty-stars">⭐</span>
     </div>
     
-    <!-- Faith Progress Bar -->
     <div class="faith-progress">
         <div class="label">🍀 Faith in Magic: <span id="faith-display">0</span>%</div>
         <div class="bar">
@@ -791,14 +766,13 @@
         </div>
     </div>
     
-    <!-- Hint -->
     <div class="hat-hint">
         ✨ Catch the Running Leprechaun Hat! ✨
     </div>
 
     <div class="container">
         <header>
-            <h1><i class="fas fa-shamrock"></i> Leprechaun </h1>
+            <h1><i class="fas fa-shamrock"></i> Leprechaun AI</h1>
             <p class="subtitle">Gold Detection System</p>
             <div class="country-info" id="countryDisplay">
                 <i class="fas fa-map-marker-alt"></i> 
@@ -807,12 +781,10 @@
         </header>
 
         <div class="dashboard-grid">
-            
             <div class="card">
                 <h2 style="margin-bottom: 1.5rem; color: var(--primary-green);">
                     <i class="fas fa-sliders-h"></i> Search Parameters
                 </h2>
-                
                 <form id="magicForm">
                     <div class="form-group">
                         <label>Location (Country)</label>
@@ -823,7 +795,6 @@
                         <input type="hidden" id="selected-country-code">
                         <div class="selected-country" id="selected-country-display"></div>
                     </div>
-
                     <div class="form-group">
                         <label>Atmospheric Conditions</label>
                         <label class="checkbox-wrapper">
@@ -832,18 +803,12 @@
                             <div class="toggle-switch"></div>
                         </label>
                     </div>
-
                     <div class="form-group">
                         <label>Belief in Magic Level</label>
                         <input type="range" id="faith" min="0" max="100" value="0" style="width:100%; accent-color: var(--gold);" disabled>
-                        <div style="text-align: right; font-size: 0.8rem; color: #888;">
-                            Catch hats to increase faith!
-                        </div>
+                        <div style="text-align: right; font-size: 0.8rem; color: #888;">Catch hats to increase faith!</div>
                     </div>
-
-                    <button type="button" class="btn-calc" onclick="calculateMagic()">
-                        Calculate Chance
-                    </button>
+                    <button type="button" class="btn-calc" onclick="calculateMagic()">Calculate Chance</button>
                 </form>
             </div>
 
@@ -851,14 +816,10 @@
                 <h2 style="margin-bottom: 1.5rem; color: var(--gold);">
                     <i class="fas fa-chart-line"></i> Luck Analytics
                 </h2>
-                
                 <div class="loader" id="loader">
                     <div class="spinner"></div>
-                    <p style="margin-top: 10px; color: var(--primary-green);">
-                        Connecting to leprechauns...
-                    </p>
+                    <p style="margin-top: 10px; color: var(--primary-green);">Connecting to leprechauns...</p>
                 </div>
-
                 <div id="content">
                     <div class="kpi-grid">
                         <div class="kpi-card">
@@ -874,11 +835,9 @@
                             <div class="kpi-label">Leprechaun Activity</div>
                         </div>
                     </div>
-
                     <div class="chart-container">
                         <canvas id="magicChart"></canvas>
                     </div>
-
                     <div class="magic-message" id="magicText">
                         <span>Waiting for data...</span>
                     </div>
@@ -888,7 +847,6 @@
     </div>
 
     <script>
-        // Countries Database
         const countries = [
             { code: 'ie', name: 'Ireland', distance: 0 },
             { code: 'gb', name: 'United Kingdom', distance: 450 },
@@ -1004,7 +962,6 @@
         let hatMoveTimeout = null;
         let maxFaithAchieved = false;
 
-        // Difficulty Settings
         const difficultySettings = {
             1: { name: 'Easy', stars: '⭐', detectionRange: 150, jumpDistance: 200, faithBonus: 10 },
             2: { name: 'Medium', stars: '⭐⭐', detectionRange: 120, jumpDistance: 250, faithBonus: 10 },
@@ -1013,7 +970,6 @@
             5: { name: 'Legendary', stars: '⭐⭐⭐⭐⭐', detectionRange: 60, jumpDistance: 400, faithBonus: 10 }
         };
 
-        // Initialization
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🍀 Page loaded!');
             initHat();
@@ -1037,11 +993,8 @@
         function updateFaithDisplay() {
             document.getElementById('faith').value = faith;
             document.getElementById('faith-display').textContent = faith;
-            
             const fill = document.getElementById('faith-fill');
             fill.style.width = faith + '%';
-            
-            // Add maxed class when 100%
             if (faith >= 100) {
                 fill.classList.add('maxed');
             } else {
@@ -1049,32 +1002,22 @@
             }
         }
 
-        // Hat Initialization
         function initHat() {
             const hat = document.getElementById('magicHat');
             if (!hat) {
                 console.error('Hat element not found!');
                 return;
             }
-            
             console.log('🎩 Hat initialized!');
-            
             moveHatToRandomPosition();
             
             document.addEventListener('mousemove', function(e) {
                 if (hatCaught) return;
-                
                 const settings = difficultySettings[getDifficulty()];
-                
                 const hatRect = hat.getBoundingClientRect();
                 const hatX = hatRect.left + hatRect.width / 2;
                 const hatY = hatRect.top + hatRect.height / 2;
-                
-                const distance = Math.sqrt(
-                    Math.pow(e.clientX - hatX, 2) + 
-                    Math.pow(e.clientY - hatY, 2)
-                );
-                
+                const distance = Math.sqrt(Math.pow(e.clientX - hatX, 2) + Math.pow(e.clientY - hatY, 2));
                 if (distance < settings.detectionRange) {
                     hat.classList.add('running');
                     moveHatAwayFromCursor(e.clientX, e.clientY);
@@ -1101,14 +1044,11 @@
         function moveHatToRandomPosition() {
             const hat = document.getElementById('magicHat');
             if (!hat) return;
-            
             const padding = 100;
             const maxX = window.innerWidth - hat.offsetWidth - padding;
             const maxY = window.innerHeight - hat.offsetHeight - padding;
-            
             const randomX = Math.random() * maxX + padding;
             const randomY = Math.random() * maxY + padding;
-            
             hat.style.left = randomX + 'px';
             hat.style.top = randomY + 'px';
             hat.style.right = 'auto';
@@ -1118,78 +1058,50 @@
         function moveHatAwayFromCursor(cursorX, cursorY) {
             const hat = document.getElementById('magicHat');
             if (!hat) return;
-            
             if (hatMoveTimeout) return;
-            
             const settings = difficultySettings[getDifficulty()];
-            
             const hatRect = hat.getBoundingClientRect();
             const hatX = hatRect.left + hatRect.width / 2;
             const hatY = hatRect.top + hatRect.height / 2;
-            
             const dirX = hatX - cursorX;
             const dirY = hatY - cursorY;
-            
             const length = Math.sqrt(dirX * dirX + dirY * dirY);
             const normX = dirX / length;
             const normY = dirY / length;
-            
             const jumpDistance = settings.jumpDistance;
             let newX = hatRect.left + normX * jumpDistance;
             let newY = hatRect.top + normY * jumpDistance;
-            
             const padding = 50;
             newX = Math.max(padding, Math.min(window.innerWidth - hat.offsetWidth - padding, newX));
             newY = Math.max(padding, Math.min(window.innerHeight - hat.offsetHeight - padding, newY));
-            
             hat.style.left = newX + 'px';
             hat.style.top = newY + 'px';
             hat.style.right = 'auto';
             hat.style.bottom = 'auto';
-            
-            hatMoveTimeout = setTimeout(() => {
-                hatMoveTimeout = null;
-            }, 100);
+            hatMoveTimeout = setTimeout(() => { hatMoveTimeout = null; }, 100);
         }
 
         function catchLeprechaun() {
             hatCaught = true;
             catchCount++;
-            
             const settings = difficultySettings[getDifficulty()];
-            
-            // Add faith bonus (changed from 15% to 10%)
             const oldFaith = faith;
             faith = Math.min(100, faith + settings.faithBonus);
             updateFaithDisplay();
             updateDifficultyDisplay();
-            
-            // Check if just reached 100%
             if (oldFaith < 100 && faith >= 100 && !maxFaithAchieved) {
                 maxFaithAchieved = true;
-                // Show special 100% message after regular catch message
-                setTimeout(() => {
-                    showMaxFaithMessage();
-                }, 1500);
+                setTimeout(() => { showMaxFaithMessage(); }, 1500);
             }
-            
             const hat = document.getElementById('magicHat');
             hat.classList.remove('running');
             hat.classList.add('caught');
-            
             document.getElementById('catch-number').textContent = catchCount;
-            
             startFallingCoins();
-            
             const nextLevel = getDifficulty();
-            const warningText = nextLevel > 1 
-                ? `⚠️ Next: ${difficultySettings[nextLevel].name} (${difficultySettings[nextLevel].stars})`
-                : '⚠️ Difficulty Increased!';
+            const warningText = nextLevel > 1 ? `⚠️ Next: ${difficultySettings[nextLevel].name} (${difficultySettings[nextLevel].stars})` : '⚠️ Difficulty Increased!';
             document.getElementById('difficulty-warning').textContent = warningText;
-            
-            setTimeout(() => {
-                document.getElementById('catch-message').classList.add('show');
-            }, 500);
+            setTimeout(() => { document.getElementById('catch-message').classList.add('show'); }, 500);
         }
 
         function showMaxFaithMessage() {
@@ -1205,7 +1117,6 @@
             const container = document.getElementById('coins-container');
             container.style.display = 'block';
             container.innerHTML = '';
-            
             for (let i = 0; i < 50; i++) {
                 setTimeout(() => {
                     const coin = document.createElement('div');
@@ -1215,21 +1126,14 @@
                     coin.style.animationDelay = Math.random() * 2 + 's';
                     coin.style.animationDuration = (Math.random() * 2 + 2) + 's';
                     container.appendChild(coin);
-                    
-                    setTimeout(() => {
-                        coin.remove();
-                    }, 5000);
+                    setTimeout(() => { coin.remove(); }, 5000);
                 }, i * 100);
             }
-            
-            setTimeout(() => {
-                container.style.display = 'none';
-            }, 6000);
+            setTimeout(() => { container.style.display = 'none'; }, 6000);
         }
 
         function closeCatchMessage() {
             document.getElementById('catch-message').classList.remove('show');
-            
             setTimeout(() => {
                 const hat = document.getElementById('magicHat');
                 hat.classList.remove('caught');
@@ -1241,112 +1145,48 @@
         function launchMassiveConfetti() {
             const duration = 5000;
             const end = Date.now() + duration;
-
             (function frame() {
-                confetti({
-                    particleCount: 15,
-                    angle: 60,
-                    spread: 70,
-                    origin: { x: 0 },
-                    colors: ['#f1c40f', '#2ecc71', '#e74c3c', '#ffffff']
-                });
-                confetti({
-                    particleCount: 15,
-                    angle: 120,
-                    spread: 70,
-                    origin: { x: 1 },
-                    colors: ['#f1c40f', '#2ecc71', '#e74c3c', '#ffffff']
-                });
-
+                confetti({ particleCount: 15, angle: 60, spread: 70, origin: { x: 0 }, colors: ['#f1c40f', '#2ecc71', '#e74c3c', '#ffffff'] });
+                confetti({ particleCount: 15, angle: 120, spread: 70, origin: { x: 1 }, colors: ['#f1c40f', '#2ecc71', '#e74c3c', '#ffffff'] });
                 if (Date.now() < end) requestAnimationFrame(frame);
             }());
         }
 
-        // Autocomplete for Countries
         function initAutocomplete() {
             const input = document.getElementById('country-input');
             const list = document.getElementById('autocomplete-list');
-            
-            if (!input || !list) {
-                console.error('Autocomplete elements not found!');
-                return;
-            }
-
+            if (!input || !list) return;
             input.addEventListener('input', function() {
                 const val = this.value.toLowerCase();
                 list.innerHTML = '';
-                
-                if (!val) {
-                    list.classList.remove('active');
-                    return;
-                }
-
-                const filtered = countries.filter(c => 
-                    c.name.toLowerCase().includes(val)
-                ).slice(0, 10);
-
-                if (filtered.length === 0) {
-                    list.classList.remove('active');
-                    return;
-                }
-
+                if (!val) { list.classList.remove('active'); return; }
+                const filtered = countries.filter(c => c.name.toLowerCase().includes(val)).slice(0, 10);
+                if (filtered.length === 0) { list.classList.remove('active'); return; }
                 filtered.forEach(country => {
                     const item = document.createElement('div');
                     item.classList.add('autocomplete-item');
-                    
-                    const distanceText = country.distance === 0 
-                        ? '🍀 Home' 
-                        : `${country.distance} km`;
-                    
-                    item.innerHTML = `
-                        <span>${country.name}</span>
-                        <span class="distance">${distanceText}</span>
-                    `;
-                    
-                    item.addEventListener('click', function() {
-                        selectCountry(country);
-                    });
-                    
+                    const distanceText = country.distance === 0 ? '🍀 Home' : `${country.distance} km`;
+                    item.innerHTML = `<span>${country.name}</span><span class="distance">${distanceText}</span>`;
+                    item.addEventListener('click', function() { selectCountry(country); });
                     list.appendChild(item);
                 });
-
                 list.classList.add('active');
             });
-
-            document.addEventListener('click', function(e) {
-                if (e.target !== input) {
-                    list.classList.remove('active');
-                }
-            });
-
-            input.addEventListener('blur', function() {
-                setTimeout(() => {
-                    list.classList.remove('active');
-                }, 200);
-            });
+            document.addEventListener('click', function(e) { if (e.target !== input) list.classList.remove('active'); });
+            input.addEventListener('blur', function() { setTimeout(() => { list.classList.remove('active'); }, 200); });
         }
 
         function selectCountry(country) {
             selectedCountry = country;
             document.getElementById('country-input').value = country.name;
             document.getElementById('selected-country-code').value = country.code;
-            
             const display = document.getElementById('selected-country-display');
-            const distText = country.distance === 0 
-                ? "🍀 You're home!" 
-                : `${country.distance} km from Ireland`;
-            
+            const distText = country.distance === 0 ? "🍀 You're home!" : `${country.distance} km from Ireland`;
             display.textContent = `Selected: ${country.name} (${distText})`;
             display.classList.add('show');
-            
             document.getElementById('autocomplete-list').classList.remove('active');
-            
             const countryDisplay = document.getElementById('countryDisplay');
-            countryDisplay.innerHTML = `
-                <i class="fas fa-map-marker-alt"></i> 
-                ${country.name} 
-                <span class="distance-badge">${distText}</span>
-            `;
+            countryDisplay.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${country.name} <span class="distance-badge">${distText}</span>`;
         }
 
         function createMagicalEffects() {
@@ -1369,19 +1209,13 @@
         }
 
         function calculateMagic() {
-            if (!selectedCountry) {
-                alert('⚠️ Please select a country first!');
-                return;
-            }
-
+            if (!selectedCountry) { alert('⚠️ Please select a country first!'); return; }
             const resultsDiv = document.getElementById('results');
             const loader = document.getElementById('loader');
             const content = document.getElementById('content');
-            
             resultsDiv.style.display = 'block';
             content.style.opacity = '0.3';
             loader.style.display = 'block';
-
             setTimeout(function() {
                 loader.style.display = 'none';
                 content.style.opacity = '1';
@@ -1392,56 +1226,41 @@
         function runCalculation() {
             const hasRainbow = document.getElementById('rainbow').checked;
             const countryData = selectedCountry;
-
             let goldChance = 15;
-            
-            // Faith bonus from caught hats
             goldChance += (faith / 4);
-            
             if (countryData.distance === 0) goldChance += 45;
             else if (countryData.distance < 1000) goldChance += 30;
             else if (countryData.distance < 3000) goldChance += 20;
             else if (countryData.distance < 6000) goldChance += 10;
             else goldChance += 5;
-            
             if (hasRainbow) goldChance += 30;
             goldChance += Math.random() * 10;
-            
             if (goldChance > 100) goldChance = 99.9;
-
             animateValue("kpi-gold", 0, Math.floor(goldChance), 1500, "%");
             animateValue("kpi-luck", 0, Math.floor(Math.random() * 50 + goldChance), 1500, "");
-            
             let activity = 'Low';
             if (goldChance > 40) activity = 'Medium';
             if (goldChance > 70) activity = 'High';
             if (goldChance > 90) activity = 'CRITICAL! 🍀';
-            
             document.getElementById('kpi-leprechaun').textContent = activity;
-
             const messages = {
                 high: "<strong>AMAZING!</strong> The stars align perfectly! Wear green, follow the rainbow, and listen for jig music. Gold is near!",
                 medium: "Good vibes detected! Your chances are decent. Look for four-leaf clovers and keep your eyes on the horizon.",
                 low: "The magic is weak today. Try increasing your belief or planning a trip to Ireland. Every journey starts with a dream!"
             };
-            
             const msgBox = document.getElementById('magicText');
             let msgKey = 'low';
             if (goldChance > 70) msgKey = 'high';
             else if (goldChance > 40) msgKey = 'medium';
-            
             msgBox.innerHTML = messages[msgKey];
             msgBox.style.borderColor = goldChance > 70 ? '#2ecc71' : (goldChance > 40 ? '#f1c40f' : '#e74c3c');
-
             if (goldChance > 85) launchConfetti();
-            
             updateChart(goldChance, hasRainbow ? 85 : 25, faith, countryData.distance);
         }
 
         function animateValue(id, start, end, duration, suffix) {
             const obj = document.getElementById(id);
             if (!obj) return;
-            
             let startTimestamp = null;
             const step = function(timestamp) {
                 if (!startTimestamp) startTimestamp = timestamp;
@@ -1455,22 +1274,17 @@
         function updateChart(gold, rainbow, faith, distance) {
             const canvas = document.getElementById('magicChart');
             if (!canvas) return;
-            
             const ctx = canvas.getContext('2d');
-            
-            if (myChart) {
-                myChart.destroy();
-            }
-
+            if (myChart) myChart.destroy();
             const proximity = Math.max(0, 100 - (distance / 200));
-            
+            // FIXED: Added 'data:' key properly
             myChart = new Chart(ctx, {
                 type: 'radar',
-                 {
+                data: {
                     labels: ['Gold Probability', 'Rainbow Quality', 'Belief Level', 'Leprechaun Proximity', 'Magic Field'],
                     datasets: [{
                         label: 'Luck Indicators',
-                         [gold, rainbow, faith, proximity, Math.random() * 40 + 30],
+                        data: [gold, rainbow, faith, proximity, Math.random() * 40 + 30],
                         backgroundColor: 'rgba(46, 204, 113, 0.4)',
                         borderColor: '#2ecc71',
                         pointBackgroundColor: '#f1c40f',
@@ -1488,31 +1302,16 @@
                         r: {
                             angleLines: { color: 'rgba(255,255,255,0.1)', lineWidth: 1 },
                             grid: { color: 'rgba(255,255,255,0.15)' },
-                            pointLabels: { 
-                                color: '#ecf0f1', 
-                                font: { size: 11, family: 'Montserrat' },
-                                padding: 10
-                            },
-                            ticks: { 
-                                display: true, 
-                                backdropColor: 'transparent',
-                                color: 'rgba(255,255,255,0.5)',
-                                stepSize: 25
-                            },
+                            pointLabels: { color: '#ecf0f1', font: { size: 11, family: 'Montserrat' }, padding: 10 },
+                            ticks: { display: true, backdropColor: 'transparent', color: 'rgba(255,255,255,0.5)', stepSize: 25 },
                             suggestedMin: 0,
                             suggestedMax: 100
                         }
                     },
                     plugins: {
-                        legend: { 
-                            display: true,
-                            labels: { color: '#ecf0f1', font: { family: 'Montserrat' } }
-                        }
+                        legend: { display: true, labels: { color: '#ecf0f1', font: { family: 'Montserrat' } } }
                     },
-                    animation: {
-                        duration: 2000,
-                        easing: 'easeOutQuart'
-                    }
+                    animation: { duration: 2000, easing: 'easeOutQuart' }
                 }
             });
         }
@@ -1520,23 +1319,9 @@
         function launchConfetti() {
             const duration = 3000;
             const end = Date.now() + duration;
-
             (function frame() {
-                confetti({
-                    particleCount: 5,
-                    angle: 60,
-                    spread: 55,
-                    origin: { x: 0 },
-                    colors: ['#2ecc71', '#f1c40f', '#ffffff']
-                });
-                confetti({
-                    particleCount: 5,
-                    angle: 120,
-                    spread: 55,
-                    origin: { x: 1 },
-                    colors: ['#2ecc71', '#f1c40f', '#ffffff']
-                });
-
+                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#2ecc71', '#f1c40f', '#ffffff'] });
+                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#2ecc71', '#f1c40f', '#ffffff'] });
                 if (Date.now() < end) requestAnimationFrame(frame);
             }());
         }
