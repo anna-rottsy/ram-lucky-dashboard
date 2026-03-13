@@ -48,9 +48,10 @@
             gap: 10px;
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
-            padding: 10px;
+            padding: 5px;
             border-radius: 30px;
             border: 1px solid var(--glass-border);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         .lang-btn {
@@ -62,30 +63,20 @@
             cursor: pointer;
             transition: all 0.3s;
             font-weight: 600;
-            border: 2px solid transparent;
+            font-size: 0.9rem;
         }
 
         .lang-btn.active {
             background: var(--primary-green);
-            border-color: var(--gold);
-            box-shadow: var(--magic-glow);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
         }
 
         .lang-btn:hover:not(.active) {
-            border-color: var(--primary-green);
+            background: rgba(255,255,255,0.1);
         }
 
         /* Magical Particles */
-        #particles-js {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            z-index: 0;
-            pointer-events: none;
-        }
-
         .background-fx {
             position: fixed;
             top: 0;
@@ -102,26 +93,11 @@
             animation: fall linear infinite;
         }
 
-        .clover {
-            color: rgba(46, 204, 113, 0.15);
-            font-size: 2rem;
-        }
+        .clover { color: rgba(46, 204, 113, 0.15); font-size: 2rem; }
+        .gold-coin { color: rgba(241, 196, 15, 0.2); font-size: 1.5rem; }
+        .sparkle { color: rgba(255, 255, 255, 0.6); font-size: 1rem; animation: sparkle-fall 8s linear infinite; }
 
-        .gold-coin {
-            color: rgba(241, 196, 15, 0.2);
-            font-size: 1.5rem;
-        }
-
-        .sparkle {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 1rem;
-            animation: sparkle-fall 8s linear infinite;
-        }
-
-        @keyframes fall {
-            to { transform: translateY(100vh) rotate(360deg); }
-        }
-
+        @keyframes fall { to { transform: translateY(100vh) rotate(360deg); } }
         @keyframes sparkle-fall {
             0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
             100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
@@ -172,6 +148,7 @@
             border: 1px solid var(--gold);
             font-size: 0.9rem;
             animation: pulse 2s infinite;
+            max-width: 90%;
         }
 
         @keyframes pulse {
@@ -202,29 +179,6 @@
             overflow: hidden;
         }
 
-        .card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(46, 204, 113, 0.1), transparent);
-            transform: rotate(45deg);
-            transition: all 0.5s;
-            opacity: 0;
-        }
-
-        .card:hover::before {
-            animation: shimmer 0.5s ease-in-out;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: translateX(100%) translateY(100%) rotate(45deg); opacity: 0; }
-        }
-
         .card:hover {
             transform: translateY(-5px);
             border-color: var(--primary-green);
@@ -253,6 +207,11 @@
             outline: none;
             transition: 0.3s;
             cursor: pointer;
+            appearance: none; /* Убираем стандартную стрелку */
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%232ecc71%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem top 50%;
+            background-size: 0.65rem auto;
         }
 
         select:focus {
@@ -308,9 +267,7 @@
             transform: translateX(24px);
         }
 
-        input[type="checkbox"] {
-            display: none;
-        }
+        input[type="checkbox"] { display: none; }
 
         .btn-calc {
             width: 100%;
@@ -349,10 +306,6 @@
             box-shadow: 0 6px 25px rgba(46, 204, 113, 0.7);
         }
 
-        .btn-calc:active {
-            transform: scale(0.98);
-        }
-
         .results-section {
             display: none;
             animation: fadeInUp 0.8s ease;
@@ -378,22 +331,6 @@
             transition: all 0.3s;
             position: relative;
             overflow: hidden;
-        }
-
-        .kpi-card::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(241, 196, 15, 0.2), transparent);
-            animation: rotate 4s linear infinite;
-        }
-
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
         }
 
         .kpi-value {
@@ -435,7 +372,6 @@
             from { opacity: 0; transform: translateX(-20px); }
             to { opacity: 1; transform: translateX(0); }
         }
-
         @keyframes fadeInDown {
             from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -463,29 +399,22 @@
             box-shadow: 0 0 20px rgba(241, 196, 15, 0.5);
         }
 
-        @keyframes spin { 
-            0% { transform: rotate(0deg); } 
-            100% { transform: rotate(360deg); } 
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+        /* Moving Hat Styles */
         .leprechaun-hat {
             position: fixed;
-            bottom: -100px;
-            right: 50px;
-            font-size: 5rem;
-            animation: peek 3s ease-in-out infinite;
+            font-size: 4rem;
             z-index: 100;
             cursor: pointer;
-            transition: transform 0.3s;
+            transition: all 1s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.6));
+            animation: float 3s ease-in-out infinite;
         }
 
-        .leprechaun-hat:hover {
-            transform: scale(1.2) rotate(10deg);
-        }
-
-        @keyframes peek {
-            0%, 100% { bottom: -100px; }
-            50% { bottom: 20px; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
         }
 
         .distance-badge {
@@ -501,14 +430,14 @@
 </head>
 <body>
 
-    <div id="particles-js"></div>
     <div class="background-fx" id="bg-fx"></div>
     
-    <div class="leprechaun-hat" onclick="surprise()" title="Click me!">🎩</div>
+    <!-- Шляпа -->
+    <div class="leprechaun-hat" id="magicHat" onclick="surprise()" title="Click me!">🎩</div>
 
     <div class="lang-switcher">
-        <button class="lang-btn active" onclick="switchLang('en')">EN</button>
-        <button class="lang-btn" onclick="switchLang('ru')">RU</button>
+        <button class="lang-btn active" id="btn-en" onclick="setLanguage('en')">EN</button>
+        <button class="lang-btn" id="btn-ru" onclick="setLanguage('ru')">RU</button>
     </div>
 
     <div class="container">
@@ -517,7 +446,7 @@
             <p class="subtitle" data-en="Gold Detection System" data-ru="Система обнаружения золота">Gold Detection System</p>
             <div class="country-info" id="countryDisplay">
                 <i class="fas fa-map-marker-alt"></i> 
-                <span data-en="Select your country" data-ru="Выберите страну">Select your country</span>
+                <span data-en="Select your country below" data-ru="Выберите страну ниже">Select your country below</span>
             </div>
         </header>
 
@@ -532,7 +461,7 @@
                     <div class="form-group">
                         <label data-en="Location (Country)" data-ru="Локация (Страна)">Location (Country)</label>
                         <select id="country" onchange="updateCountryInfo()">
-                            <!-- Countries will be populated by JS -->
+                            <!-- Countries populated by JS -->
                         </select>
                     </div>
 
@@ -600,87 +529,256 @@
     </div>
 
     <script>
-        // Countries database with distances to Ireland
+        // Полный список стран
         const countries = [
-            { code: 'ie', name: 'Ireland', distance: 0, region: 'Europe' },
-            { code: 'gb', name: 'United Kingdom', distance: 450, region: 'Europe' },
-            { code: 'us', name: 'United States', distance: 5100, region: 'North America' },
-            { code: 'ca', name: 'Canada', distance: 4800, region: 'North America' },
-            { code: 'au', name: 'Australia', distance: 17000, region: 'Oceania' },
-            { code: 'de', name: 'Germany', distance: 1100, region: 'Europe' },
-            { code: 'fr', name: 'France', distance: 800, region: 'Europe' },
-            { code: 'es', name: 'Spain', distance: 1450, region: 'Europe' },
-            { code: 'it', name: 'Italy', distance: 1600, region: 'Europe' },
-            { code: 'ru', name: 'Russia', distance: 2500, region: 'Europe/Asia' },
-            { code: 'cn', name: 'China', distance: 8200, region: 'Asia' },
-            { code: 'jp', name: 'Japan', distance: 9500, region: 'Asia' },
-            { code: 'br', name: 'Brazil', distance: 7800, region: 'South America' },
-            { code: 'mx', name: 'Mexico', distance: 7200, region: 'North America' },
-            { code: 'in', name: 'India', distance: 7500, region: 'Asia' },
-            { code: 'za', name: 'South Africa', distance: 9500, region: 'Africa' },
-            { code: 'eg', name: 'Egypt', distance: 3800, region: 'Africa' },
-            { code: 'ng', name: 'Nigeria', distance: 5200, region: 'Africa' },
-            { code: 'ar', name: 'Argentina', distance: 11500, region: 'South America' },
-            { code: 'cl', name: 'Chile', distance: 12800, region: 'South America' },
-            { code: 'nz', name: 'New Zealand', distance: 19000, region: 'Oceania' },
-            { code: 'kr', name: 'South Korea', distance: 9000, region: 'Asia' },
-            { code: 'th', name: 'Thailand', distance: 10000, region: 'Asia' },
-            { code: 'sg', name: 'Singapore', distance: 10800, region: 'Asia' },
-            { code: 'ae', name: 'UAE', distance: 5800, region: 'Asia' },
-            { code: 'sa', name: 'Saudi Arabia', distance: 5200, region: 'Asia' },
-            { code: 'tr', name: 'Turkey', distance: 2800, region: 'Europe/Asia' },
-            { code: 'pl', name: 'Poland', distance: 1400, region: 'Europe' },
-            { code: 'nl', name: 'Netherlands', distance: 800, region: 'Europe' },
-            { code: 'be', name: 'Belgium', distance: 850, region: 'Europe' },
-            { code: 'se', name: 'Sweden', distance: 1600, region: 'Europe' },
-            { code: 'no', name: 'Norway', distance: 1400, region: 'Europe' },
-            { code: 'dk', name: 'Denmark', distance: 1100, region: 'Europe' },
-            { code: 'fi', name: 'Finland', distance: 1900, region: 'Europe' },
-            { code: 'pt', name: 'Portugal', distance: 1600, region: 'Europe' },
-            { code: 'gr', name: 'Greece', distance: 2600, region: 'Europe' },
-            { code: 'cz', name: 'Czech Republic', distance: 1300, region: 'Europe' },
-            { code: 'at', name: 'Austria', distance: 1300, region: 'Europe' },
-            { code: 'ch', name: 'Switzerland', distance: 1100, region: 'Europe' },
-            { code: 'ie', name: 'Ireland', distance: 0, region: 'Europe' }
+            { code: 'ie', name: 'Ireland', distance: 0 },
+            { code: 'gb', name: 'United Kingdom', distance: 450 },
+            { code: 'us', name: 'United States', distance: 5100 },
+            { code: 'ca', name: 'Canada', distance: 4800 },
+            { code: 'au', name: 'Australia', distance: 17000 },
+            { code: 'de', name: 'Germany', distance: 1100 },
+            { code: 'fr', name: 'France', distance: 800 },
+            { code: 'es', name: 'Spain', distance: 1450 },
+            { code: 'it', name: 'Italy', distance: 1600 },
+            { code: 'ru', name: 'Russia', distance: 2500 },
+            { code: 'cn', name: 'China', distance: 8200 },
+            { code: 'jp', name: 'Japan', distance: 9500 },
+            { code: 'br', name: 'Brazil', distance: 7800 },
+            { code: 'mx', name: 'Mexico', distance: 7200 },
+            { code: 'in', name: 'India', distance: 7500 },
+            { code: 'za', name: 'South Africa', distance: 9500 },
+            { code: 'eg', name: 'Egypt', distance: 3800 },
+            { code: 'ng', name: 'Nigeria', distance: 5200 },
+            { code: 'ar', name: 'Argentina', distance: 11500 },
+            { code: 'cl', name: 'Chile', distance: 12800 },
+            { code: 'nz', name: 'New Zealand', distance: 19000 },
+            { code: 'kr', name: 'South Korea', distance: 9000 },
+            { code: 'th', name: 'Thailand', distance: 10000 },
+            { code: 'sg', name: 'Singapore', distance: 10800 },
+            { code: 'ae', name: 'UAE', distance: 5800 },
+            { code: 'sa', name: 'Saudi Arabia', distance: 5200 },
+            { code: 'tr', name: 'Turkey', distance: 2800 },
+            { code: 'pl', name: 'Poland', distance: 1400 },
+            { code: 'nl', name: 'Netherlands', distance: 800 },
+            { code: 'be', name: 'Belgium', distance: 850 },
+            { code: 'se', name: 'Sweden', distance: 1600 },
+            { code: 'no', name: 'Norway', distance: 1400 },
+            { code: 'dk', name: 'Denmark', distance: 1100 },
+            { code: 'fi', name: 'Finland', distance: 1900 },
+            { code: 'pt', name: 'Portugal', distance: 1600 },
+            { code: 'gr', name: 'Greece', distance: 2600 },
+            { code: 'cz', name: 'Czech Republic', distance: 1300 },
+            { code: 'at', name: 'Austria', distance: 1300 },
+            { code: 'ch', name: 'Switzerland', distance: 1100 },
+            { code: 'ua', name: 'Ukraine', distance: 2200 },
+            { code: 'by', name: 'Belarus', distance: 1900 },
+            { code: 'kz', name: 'Kazakhstan', distance: 4500 },
+            { code: 'uz', name: 'Uzbekistan', distance: 5100 },
+            { code: 'id', name: 'Indonesia', distance: 12500 },
+            { code: 'ph', name: 'Philippines', distance: 11000 },
+            { code: 'vn', name: 'Vietnam', distance: 10500 },
+            { code: 'my', name: 'Malaysia', distance: 11200 },
+            { code: 'pk', name: 'Pakistan', distance: 6500 },
+            { code: 'bd', name: 'Bangladesh', distance: 8000 },
+            { code: 'ir', name: 'Iran', distance: 4800 },
+            { code: 'iq', name: 'Iraq', distance: 4500 },
+            { code: 'af', name: 'Afghanistan', distance: 5800 },
+            { code: 'ke', name: 'Kenya', distance: 7000 },
+            { code: 'et', name: 'Ethiopia', distance: 6500 },
+            { code: 'tz', name: 'Tanzania', distance: 7500 },
+            { code: 'ug', name: 'Uganda', distance: 6800 },
+            { code: 'gh', name: 'Ghana', distance: 5500 },
+            { code: 'ci', name: 'Ivory Coast', distance: 5800 },
+            { code: 'cm', name: 'Cameroon', distance: 6200 },
+            { code: 'sn', name: 'Senegal', distance: 4800 },
+            { code: 'ma', name: 'Morocco', distance: 2200 },
+            { code: 'dz', name: 'Algeria', distance: 2500 },
+            { code: 'tn', name: 'Tunisia', distance: 2400 },
+            { code: 'ly', name: 'Libya', distance: 3200 },
+            { code: 'sd', name: 'Sudan', distance: 5500 },
+            { code: 'so', name: 'Somalia', distance: 7500 },
+            { code: 'mg', name: 'Madagascar', distance: 9000 },
+            { code: 'mw', name: 'Malawi', distance: 8500 },
+            { code: 'zm', name: 'Zambia', distance: 8200 },
+            { code: 'zw', name: 'Zimbabwe', distance: 8800 },
+            { code: 'bw', name: 'Botswana', distance: 9200 },
+            { code: 'na', name: 'Namibia', distance: 9500 },
+            { code: 'ao', name: 'Angola', distance: 7500 },
+            { code: 'cd', name: 'DR Congo', distance: 7000 },
+            { code: 'cg', name: 'Congo', distance: 6800 },
+            { code: 'ga', name: 'Gabon', distance: 6500 },
+            { code: 'gq', name: 'Eq. Guinea', distance: 6000 },
+            { code: 'st', name: 'Sao Tome', distance: 6200 },
+            { code: 'cv', name: 'Cape Verde', distance: 4500 },
+            { code: 'gm', name: 'Gambia', distance: 4900 },
+            { code: 'gn', name: 'Guinea', distance: 5200 },
+            { code: 'gw', name: 'Guinea-Bissau', distance: 5000 },
+            { code: 'lr', name: 'Liberia', distance: 5400 },
+            { code: 'sl', name: 'Sierra Leone', distance: 5300 },
+            { code: 'tg', name: 'Togo', distance: 5600 },
+            { code: 'bj', name: 'Benin', distance: 5700 },
+            { code: 'ne', name: 'Niger', distance: 4200 },
+            { code: 'bf', name: 'Burkina Faso', distance: 5000 },
+            { code: 'ml', name: 'Mali', distance: 4500 },
+            { code: 'mr', name: 'Mauritania', distance: 3800 },
+            { code: 'eh', name: 'W. Sahara', distance: 3500 },
+            { code: 'co', name: 'Colombia', distance: 8500 },
+            { code: 've', name: 'Venezuela', distance: 7500 },
+            { code: 'gy', name: 'Guyana', distance: 7200 },
+            { code: 'sr', name: 'Suriname', distance: 7400 },
+            { code: 'gf', name: 'Fr. Guiana', distance: 7600 },
+            { code: 'ec', name: 'Ecuador', distance: 9500 },
+            { code: 'pe', name: 'Peru', distance: 10500 },
+            { code: 'bo', name: 'Bolivia', distance: 10800 },
+            { code: 'py', name: 'Paraguay', distance: 11200 },
+            { code: 'uy', name: 'Uruguay', distance: 11500 },
+            { code: 'fk', name: 'Falklands', distance: 13000 },
+            { code: 'gs', name: 'S. Georgia', distance: 14000 },
+            { code: 'bv', name: 'Bouvet Is.', distance: 14500 },
+            { code: 'tf', name: 'Fr. S. Lands', distance: 13500 },
+            { code: 'hm', name: 'Heard Is.', distance: 18000 },
+            { code: 'aq', name: 'Antarctica', distance: 15000 },
+            { code: 'gl', name: 'Greenland', distance: 3500 },
+            { code: 'is', name: 'Iceland', distance: 1500 },
+            { code: 'fo', name: 'Faroe Is.', distance: 1200 },
+            { code: 'sj', name: 'Svalbard', distance: 2500 },
+            { code: 'ax', name: 'Aland Is.', distance: 1800 },
+            { code: 'gg', name: 'Guernsey', distance: 500 },
+            { code: 'je', name: 'Jersey', distance: 480 },
+            { code: 'im', name: 'Isle of Man', distance: 300 },
+            { code: 'gi', name: 'Gibraltar', distance: 1800 },
+            { code: 'mt', name: 'Malta', distance: 2200 },
+            { code: 'cy', name: 'Cyprus', distance: 3200 },
+            { code: 'al', name: 'Albania', distance: 2400 },
+            { code: 'ba', name: 'Bosnia', distance: 2100 },
+            { code: 'hr', name: 'Croatia', distance: 1900 },
+            { code: 'me', name: 'Montenegro', distance: 2200 },
+            { code: 'mk', name: 'N. Macedonia', distance: 2300 },
+            { code: 'rs', name: 'Serbia', distance: 2000 },
+            { code: 'si', name: 'Slovenia', distance: 1500 },
+            { code: 'sk', name: 'Slovakia', distance: 1600 },
+            { code: 'hu', name: 'Hungary', distance: 1700 },
+            { code: 'ro', name: 'Romania', distance: 2100 },
+            { code: 'bg', name: 'Bulgaria', distance: 2300 },
+            { code: 'md', name: 'Moldova', distance: 2400 },
+            { code: 'lt', name: 'Lithuania', distance: 1700 },
+            { code: 'lv', name: 'Latvia', distance: 1800 },
+            { code: 'ee', name: 'Estonia', distance: 1900 },
+            { code: 'ge', name: 'Georgia', distance: 3500 },
+            { code: 'am', name: 'Armenia', distance: 3800 },
+            { code: 'az', name: 'Azerbaijan', distance: 4200 },
+            { code: 'tm', name: 'Turkmenistan', distance: 5000 },
+            { code: 'tj', name: 'Tajikistan', distance: 5500 },
+            { code: 'kg', name: 'Kyrgyzstan', distance: 5800 },
+            { code: 'mn', name: 'Mongolia', distance: 7500 },
+            { code: 'kp', name: 'N. Korea', distance: 8800 },
+            { code: 'mm', name: 'Myanmar', distance: 9200 },
+            { code: 'la', name: 'Laos', distance: 9500 },
+            { code: 'kh', name: 'Cambodia', distance: 10200 },
+            { code: 'bn', name: 'Brunei', distance: 11500 },
+            { code: 'tl', name: 'Timor-Leste', distance: 13500 },
+            { code: 'pg', name: 'Papua NG', distance: 15500 },
+            { code: 'sb', name: 'Solomon Is.', distance: 16500 },
+            { code: 'vu', name: 'Vanuatu', distance: 17000 },
+            { code: 'nc', name: 'New Caledonia', distance: 17500 },
+            { code: 'fj', name: 'Fiji', distance: 17200 },
+            { code: 'to', name: 'Tonga', distance: 17800 },
+            { code: 'ws', name: 'Samoa', distance: 17500 },
+            { code: 'ki', name: 'Kiribati', distance: 16000 },
+            { code: 'tv', name: 'Tuvalu', distance: 17000 },
+            { code: 'nr', name: 'Nauru', distance: 15500 },
+            { code: 'mh', name: 'Marshall Is.', distance: 14500 },
+            { code: 'fm', name: 'Micronesia', distance: 14000 },
+            { code: 'pw', name: 'Palau', distance: 13500 },
+            { code: 'gu', name: 'Guam', distance: 13000 },
+            { code: 'mp', name: 'N. Mariana', distance: 13200 },
+            { code: 'as', name: 'Amer. Samoa', distance: 16500 },
+            { code: 'ck', name: 'Cook Is.', distance: 16800 },
+            { code: 'nu', name: 'Niue', distance: 17200 },
+            { code: 'tk', name: 'Tokelau', distance: 17000 },
+            { code: 'wf', name: 'Wallis & Futuna', distance: 17300 },
+            { code: 'pf', name: 'Fr. Polynesia', distance: 16000 },
+            { code: 'pn', name: 'Pitcairn', distance: 15500 },
+            { code: 'sh', name: 'St. Helena', distance: 8500 },
+            { code: 'ac', name: 'Ascension', distance: 8200 },
+            { code: 'ta', name: 'Tristan da Cunha', distance: 9500 },
+            { code: 'yt', name: 'Mayotte', distance: 8800 },
+            { code: 're', name: 'Reunion', distance: 9200 },
+            { code: 'mu', name: 'Mauritius', distance: 9500 },
+            { code: 'sc', name: 'Seychelles', distance: 8500 },
+            { code: 'km', name: 'Comoros', distance: 8600 },
+            { code: 'dj', name: 'Djibouti', distance: 6200 },
+            { code: 'er', name: 'Eritrea', distance: 6000 },
+            { code: 'ss', name: 'S. Sudan', distance: 6500 },
+            { code: 'cf', name: 'C. Afr. Rep.', distance: 6800 },
+            { code: 'td', name: 'Chad', distance: 5500 },
+            { code: 'bi', name: 'Burundi', distance: 7800 },
+            { code: 'rw', name: 'Rwanda', distance: 7500 },
+            { code: 'ls', name: 'Lesotho', distance: 9800 },
+            { code: 'sz', name: 'Eswatini', distance: 9600 },
+            { code: 'mq', name: 'Martinique', distance: 6800 },
+            { code: 'gp', name: 'Guadeloupe', distance: 6500 },
+            { code: 'bl', name: 'St. Barthelemy', distance: 6600 },
+            { code: 'mf', name: 'St. Martin', distance: 6700 },
+            { code: 'pm', name: 'St. Pierre', distance: 4200 },
+            { code: 'sx', name: 'Sint Maarten', distance: 6800 },
+            { code: 'cw', name: 'Curacao', distance: 7300 },
+            { code: 'aw', name: 'Aruba', distance: 7400 },
+            { code: 'bq', name: 'Bonaire', distance: 7500 },
+            { code: 'vi', name: 'US Virgin Is.', distance: 6900 },
+            { code: 'vg', name: 'Brit. Virgin Is.', distance: 6850 },
+            { code: 'ai', name: 'Anguilla', distance: 6800 },
+            { code: 'ag', name: 'Antigua', distance: 6750 },
+            { code: 'bb', name: 'Barbados', distance: 6600 },
+            { code: 'gd', name: 'Grenada', distance: 6900 },
+            { code: 'kn', name: 'St. Kitts', distance: 6700 },
+            { code: 'lc', name: 'St. Lucia', distance: 6800 },
+            { code: 'vc', name: 'St. Vincent', distance: 6850 },
+            { code: 'dm', name: 'Dominica', distance: 6750 },
+            { code: 'tt', name: 'Trinidad', distance: 7100 },
+            { code: 'jm', name: 'Jamaica', distance: 7200 },
+            { code: 'ht', name: 'Haiti', distance: 7000 },
+            { code: 'do', name: 'Dominican Rep.', distance: 6900 },
+            { code: 'pr', name: 'Puerto Rico', distance: 6800 },
+            { code: 'bs', name: 'Bahamas', distance: 6500 },
+            { code: 'cu', name: 'Cuba', distance: 7100 },
+            { code: 'ky', name: 'Cayman Is.', distance: 7300 },
+            { code: 'tc', name: 'Turks & Caicos', distance: 6900 },
+            { code: 'bm', name: 'Bermuda', distance: 5500 },
+            { code: 'ms', name: 'Montserrat', distance: 6700 }
         ];
 
         let currentLang = 'en';
         let myChart = null;
 
-        // Initialize
+        // Инициализация
         document.addEventListener('DOMContentLoaded', () => {
             populateCountries();
             createMagicalEffects();
             updateCountryInfo();
+            moveHat(); // Запуск движения шляпы
+            setInterval(moveHat, 6000); // Движение каждые 6 секунд
         });
 
         function populateCountries() {
             const select = document.getElementById('country');
+            // Сортировка по алфавиту
             countries.sort((a, b) => a.name.localeCompare(b.name)).forEach(country => {
                 const option = document.createElement('option');
                 option.value = country.code;
-                option.textContent = `${country.name} (${country.distance === 0 ? '🍀 Home' : country.distance + ' km'})`;
+                const distText = country.distance === 0 
+                    ? (currentLang === 'en' ? '🍀 Home' : '🍀 Дом') 
+                    : `${country.distance} km`;
+                option.textContent = `${country.name} (${distText})`;
                 select.appendChild(option);
             });
         }
 
         function createMagicalEffects() {
             const container = document.getElementById('bg-fx');
-            
-            // Create falling clovers
-            for(let i = 0; i < 15; i++) {
-                createFallingElement(container, 'clover', '🍀');
-            }
-            
-            // Create falling gold coins
-            for(let i = 0; i < 8; i++) {
-                createFallingElement(container, 'gold-coin', '🪙');
-            }
-            
-            // Create sparkles
-            for(let i = 0; i < 20; i++) {
-                createFallingElement(container, 'sparkle', '✨');
-            }
+            for(let i = 0; i < 15; i++) createFallingElement(container, 'clover', '🍀');
+            for(let i = 0; i < 8; i++) createFallingElement(container, 'gold-coin', '🪙');
+            for(let i = 0; i < 20; i++) createFallingElement(container, 'sparkle', '✨');
         }
 
         function createFallingElement(container, className, content) {
@@ -701,7 +799,8 @@
             const display = document.getElementById('countryDisplay');
             
             if (country) {
-                const distanceText = country.distance === 0 
+                const isHome = country.distance === 0;
+                const distText = isHome
                     ? (currentLang === 'en' ? "🍀 You're home!" : "🍀 Вы дома!")
                     : (currentLang === 'en' 
                         ? `${country.distance} km from Ireland` 
@@ -710,29 +809,29 @@
                 display.innerHTML = `
                     <i class="fas fa-map-marker-alt"></i> 
                     ${country.name} 
-                    <span class="distance-badge">${distanceText}</span>
+                    <span class="distance-badge">${distText}</span>
                 `;
             }
         }
 
-        function switchLang(lang) {
+        // Исправленная функция смены языка
+        function setLanguage(lang) {
             currentLang = lang;
             
-            // Update buttons
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
+            // Обновляем кнопки
+            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+            document.getElementById('btn-ru').classList.toggle('active', lang === 'ru');
             
-            // Update all translatable elements
+            // Обновляем текст
             document.querySelectorAll('[data-en]').forEach(el => {
                 el.textContent = el.getAttribute(`data-${lang}`);
             });
             
+            // Обновляем информацию о стране и график (если есть)
             updateCountryInfo();
+            populateCountries(); // Пересоздать список с новым языком
             
-            // Update chart if exists
-            if (myChart) {
+            if (document.getElementById('results').style.display === 'block') {
                 runCalculation();
             }
         }
@@ -759,28 +858,20 @@
             const faith = parseInt(document.getElementById('faith').value);
             const countryData = countries.find(c => c.code === country);
 
-            // Calculate base chance
             let goldChance = 15;
             
-            // Distance factor (closer = better)
             if (countryData.distance === 0) goldChance += 45;
             else if (countryData.distance < 1000) goldChance += 30;
             else if (countryData.distance < 3000) goldChance += 20;
             else if (countryData.distance < 6000) goldChance += 10;
             else goldChance += 5;
             
-            // Rainbow bonus
             if (hasRainbow) goldChance += 30;
-            
-            // Faith bonus
             goldChance += (faith / 4);
-            
-            // Random magical factor
             goldChance += Math.random() * 10;
             
             if (goldChance > 100) goldChance = 99.9;
 
-            // Animate KPIs
             animateValue("kpi-gold", 0, Math.floor(goldChance), 1500, "%");
             animateValue("kpi-luck", 0, Math.floor(Math.random() * 50 + goldChance), 1500, "");
             
@@ -791,7 +882,6 @@
             
             document.getElementById('kpi-leprechaun').textContent = activity;
 
-            // Magic message
             const messages = {
                 en: {
                     high: "<strong>AMAZING!</strong> The stars align perfectly! Wear green, follow the rainbow, and listen for jig music. Gold is near!",
@@ -929,6 +1019,26 @@
             
             alert('🎩 ' + msg + ' 🍀');
             launchConfetti();
+        }
+
+        // Логика движения шляпы
+        function moveHat() {
+            const hat = document.getElementById('magicHat');
+            const corners = [
+                { top: '20px', left: '20px', right: 'auto', bottom: 'auto' }, // Top Left
+                { top: '20px', left: 'auto', right: '20px', bottom: 'auto' }, // Top Right
+                { top: 'auto', left: '20px', right: 'auto', bottom: '20px' }, // Bottom Left
+                { top: 'auto', left: 'auto', right: '20px', bottom: '20px' }  // Bottom Right
+            ];
+            
+            const randomCorner = corners[Math.floor(Math.random() * corners.length)];
+            
+            // Применяем стили
+            Object.assign(hat.style, randomCorner);
+            
+            // Небольшой поворот для живости
+            const rotate = Math.random() > 0.5 ? 'rotate(10deg)' : 'rotate(-10deg)';
+            hat.style.transform = rotate;
         }
     </script>
 </body>
