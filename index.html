@@ -553,6 +553,71 @@
             box-shadow: 0 0 20px rgba(241, 196, 15, 0.8);
         }
 
+        /* 100% Faith Achievement Message */
+        .max-faith-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: linear-gradient(135deg, rgba(241, 196, 15, 0.95), rgba(230, 126, 34, 0.95));
+            padding: 4rem 5rem;
+            border-radius: 30px;
+            text-align: center;
+            z-index: 1002;
+            border: 4px solid #fff;
+            box-shadow: 0 0 80px rgba(241, 196, 15, 1);
+            display: none;
+            animation: pop-in 0.5s ease-out forwards;
+        }
+
+        .max-faith-message.show {
+            display: block;
+        }
+
+        .max-faith-message h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 3rem;
+            color: #fff;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+            animation: glow-text 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow-text {
+            from { text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 40px rgba(255, 255, 255, 1), 0 0 60px rgba(241, 196, 15, 0.8); }
+        }
+
+        .max-faith-message p {
+            font-size: 1.4rem;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .max-faith-message .sub-text {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            color: #f0f0f0;
+        }
+
+        .max-faith-message .close-btn {
+            padding: 1rem 3rem;
+            background: #fff;
+            color: #d35400;
+            border: none;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .max-faith-message .close-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+        }
+
         .catch-count {
             position: fixed;
             top: 20px;
@@ -668,6 +733,16 @@
             transition: width 0.5s ease;
             box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
         }
+
+        .faith-progress .fill.maxed {
+            background: linear-gradient(90deg, #f1c40f, #e74c3c, #f39c12);
+            animation: maxed-glow 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes maxed-glow {
+            from { box-shadow: 0 0 10px rgba(241, 196, 15, 0.5); }
+            to { box-shadow: 0 0 30px rgba(241, 196, 15, 1), 0 0 50px rgba(230, 126, 34, 0.8); }
+        }
     </style>
 </head>
 <body>
@@ -684,9 +759,18 @@
     <div class="catch-message" id="catch-message">
         <h2>🍀 CONGRATULATIONS! 🍀</h2>
         <p>You've caught the Leprechaun's Hat!</p>
-        <p class="bonus-text">✨ +15% Faith Bonus Applied! ✨</p>
+        <p class="bonus-text">✨ +10% Faith Bonus Applied! ✨</p>
         <p class="difficulty-text" id="difficulty-warning">⚠️ Difficulty Increased!</p>
         <button class="close-btn" onclick="closeCatchMessage()">CLOSE</button>
+    </div>
+    
+    <!-- 100% Faith Achievement Message -->
+    <div class="max-faith-message" id="max-faith-message">
+        <h2>🏆 MAXIMUM MAGIC ACHIEVED! 🏆</h2>
+        <p>Congratulations! You've reached 100% Faith!</p>
+        <p class="sub-text">✨ The Leprechauns bow to your dedication! ✨</p>
+        <p class="sub-text">Your luck in finding the Leprechaun's gold is now at its peak!</p>
+        <button class="close-btn" onclick="closeMaxFaithMessage()">CLAIM YOUR LUCK</button>
     </div>
     
     <!-- Catch Counter -->
@@ -714,7 +798,7 @@
 
     <div class="container">
         <header>
-            <h1><i class="fas fa-shamrock"></i> Leprechaun AI</h1>
+            <h1><i class="fas fa-shamrock"></i> Leprechaun </h1>
             <p class="subtitle">Gold Detection System</p>
             <div class="country-info" id="countryDisplay">
                 <i class="fas fa-map-marker-alt"></i> 
@@ -918,14 +1002,15 @@
         let faith = 0;
         let difficultyLevel = 1;
         let hatMoveTimeout = null;
+        let maxFaithAchieved = false;
 
         // Difficulty Settings
         const difficultySettings = {
-            1: { name: 'Easy', stars: '⭐', detectionRange: 150, jumpDistance: 200, faithBonus: 15 },
-            2: { name: 'Medium', stars: '⭐⭐', detectionRange: 120, jumpDistance: 250, faithBonus: 15 },
-            3: { name: 'Hard', stars: '⭐⭐⭐', detectionRange: 100, jumpDistance: 300, faithBonus: 15 },
-            4: { name: 'Expert', stars: '⭐⭐⭐⭐', detectionRange: 80, jumpDistance: 350, faithBonus: 15 },
-            5: { name: 'Legendary', stars: '⭐⭐⭐⭐⭐', detectionRange: 60, jumpDistance: 400, faithBonus: 15 }
+            1: { name: 'Easy', stars: '⭐', detectionRange: 150, jumpDistance: 200, faithBonus: 10 },
+            2: { name: 'Medium', stars: '⭐⭐', detectionRange: 120, jumpDistance: 250, faithBonus: 10 },
+            3: { name: 'Hard', stars: '⭐⭐⭐', detectionRange: 100, jumpDistance: 300, faithBonus: 10 },
+            4: { name: 'Expert', stars: '⭐⭐⭐⭐', detectionRange: 80, jumpDistance: 350, faithBonus: 10 },
+            5: { name: 'Legendary', stars: '⭐⭐⭐⭐⭐', detectionRange: 60, jumpDistance: 400, faithBonus: 10 }
         };
 
         // Initialization
@@ -952,10 +1037,19 @@
         function updateFaithDisplay() {
             document.getElementById('faith').value = faith;
             document.getElementById('faith-display').textContent = faith;
-            document.getElementById('faith-fill').style.width = faith + '%';
+            
+            const fill = document.getElementById('faith-fill');
+            fill.style.width = faith + '%';
+            
+            // Add maxed class when 100%
+            if (faith >= 100) {
+                fill.classList.add('maxed');
+            } else {
+                fill.classList.remove('maxed');
+            }
         }
 
-        // Hat Initialization - FIXED
+        // Hat Initialization
         function initHat() {
             const hat = document.getElementById('magicHat');
             if (!hat) {
@@ -965,10 +1059,8 @@
             
             console.log('🎩 Hat initialized!');
             
-            // Set initial position
             moveHatToRandomPosition();
             
-            // Mouse move event - hat runs away
             document.addEventListener('mousemove', function(e) {
                 if (hatCaught) return;
                 
@@ -983,7 +1075,6 @@
                     Math.pow(e.clientY - hatY, 2)
                 );
                 
-                // Hat runs when cursor gets too close
                 if (distance < settings.detectionRange) {
                     hat.classList.add('running');
                     moveHatAwayFromCursor(e.clientX, e.clientY);
@@ -992,7 +1083,6 @@
                 }
             });
             
-            // Click event - catch the hat
             hat.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -1001,7 +1091,6 @@
                 catchLeprechaun();
             });
             
-            // Also support touch for mobile
             hat.addEventListener('touchstart', function(e) {
                 e.preventDefault();
                 if (hatCaught) return;
@@ -1030,7 +1119,6 @@
             const hat = document.getElementById('magicHat');
             if (!hat) return;
             
-            // Prevent too frequent movements
             if (hatMoveTimeout) return;
             
             const settings = difficultySettings[getDifficulty()];
@@ -1059,7 +1147,6 @@
             hat.style.right = 'auto';
             hat.style.bottom = 'auto';
             
-            // Cooldown before next move
             hatMoveTimeout = setTimeout(() => {
                 hatMoveTimeout = null;
             }, 100);
@@ -1071,10 +1158,20 @@
             
             const settings = difficultySettings[getDifficulty()];
             
-            // Add faith bonus
+            // Add faith bonus (changed from 15% to 10%)
+            const oldFaith = faith;
             faith = Math.min(100, faith + settings.faithBonus);
             updateFaithDisplay();
             updateDifficultyDisplay();
+            
+            // Check if just reached 100%
+            if (oldFaith < 100 && faith >= 100 && !maxFaithAchieved) {
+                maxFaithAchieved = true;
+                // Show special 100% message after regular catch message
+                setTimeout(() => {
+                    showMaxFaithMessage();
+                }, 1500);
+            }
             
             const hat = document.getElementById('magicHat');
             hat.classList.remove('running');
@@ -1084,7 +1181,6 @@
             
             startFallingCoins();
             
-            // Update difficulty warning message
             const nextLevel = getDifficulty();
             const warningText = nextLevel > 1 
                 ? `⚠️ Next: ${difficultySettings[nextLevel].name} (${difficultySettings[nextLevel].stars})`
@@ -1094,6 +1190,15 @@
             setTimeout(() => {
                 document.getElementById('catch-message').classList.add('show');
             }, 500);
+        }
+
+        function showMaxFaithMessage() {
+            document.getElementById('max-faith-message').classList.add('show');
+            launchMassiveConfetti();
+        }
+
+        function closeMaxFaithMessage() {
+            document.getElementById('max-faith-message').classList.remove('show');
         }
 
         function startFallingCoins() {
@@ -1131,6 +1236,30 @@
                 hatCaught = false;
                 moveHatToRandomPosition();
             }, 1000);
+        }
+
+        function launchMassiveConfetti() {
+            const duration = 5000;
+            const end = Date.now() + duration;
+
+            (function frame() {
+                confetti({
+                    particleCount: 15,
+                    angle: 60,
+                    spread: 70,
+                    origin: { x: 0 },
+                    colors: ['#f1c40f', '#2ecc71', '#e74c3c', '#ffffff']
+                });
+                confetti({
+                    particleCount: 15,
+                    angle: 120,
+                    spread: 70,
+                    origin: { x: 1 },
+                    colors: ['#f1c40f', '#2ecc71', '#e74c3c', '#ffffff']
+                });
+
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
         }
 
         // Autocomplete for Countries
@@ -1335,14 +1464,13 @@
 
             const proximity = Math.max(0, 100 - (distance / 200));
             
-            // FIXED: Added 'data:' key
             myChart = new Chart(ctx, {
                 type: 'radar',
-                data: {
+                 {
                     labels: ['Gold Probability', 'Rainbow Quality', 'Belief Level', 'Leprechaun Proximity', 'Magic Field'],
                     datasets: [{
                         label: 'Luck Indicators',
-                        data: [gold, rainbow, faith, proximity, Math.random() * 40 + 30],
+                         [gold, rainbow, faith, proximity, Math.random() * 40 + 30],
                         backgroundColor: 'rgba(46, 204, 113, 0.4)',
                         borderColor: '#2ecc71',
                         pointBackgroundColor: '#f1c40f',
