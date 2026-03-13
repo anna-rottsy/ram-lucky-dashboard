@@ -416,14 +416,15 @@
             font-size: 4rem;
             z-index: 1000;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: all 0.15s ease-out;
             filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.6));
             animation: float 2s ease-in-out infinite;
             user-select: none;
+            touch-action: none;
         }
 
         .leprechaun-hat.running {
-            animation: run 0.5s ease-in-out infinite;
+            animation: run 0.3s ease-in-out infinite;
         }
 
         @keyframes float {
@@ -611,7 +612,7 @@
         /* Hint text */
         .hat-hint {
             position: fixed;
-            bottom: 20px;
+            bottom: 60px;
             left: 50%;
             transform: translateX(-50%);
             background: var(--glass-bg);
@@ -633,7 +634,7 @@
         /* Faith Progress Bar */
         .faith-progress {
             position: fixed;
-            bottom: 60px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             width: 300px;
@@ -916,6 +917,7 @@
         let hatCaught = false;
         let faith = 0;
         let difficultyLevel = 1;
+        let hatMoveTimeout = null;
 
         // Difficulty Settings
         const difficultySettings = {
@@ -929,15 +931,14 @@
         // Initialization
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🍀 Page loaded!');
+            initHat();
             initAutocomplete();
             createMagicalEffects();
-            initHat();
             updateFaithDisplay();
             updateDifficultyDisplay();
         });
 
         function getDifficulty() {
-            // Difficulty increases every 3 catches, max level 5
             return Math.min(5, Math.floor(catchCount / 3) + 1);
         }
 
@@ -954,13 +955,20 @@
             document.getElementById('faith-fill').style.width = faith + '%';
         }
 
-        // Hat Initialization
+        // Hat Initialization - FIXED
         function initHat() {
             const hat = document.getElementById('magicHat');
-            if (!hat) return;
+            if (!hat) {
+                console.error('Hat element not found!');
+                return;
+            }
             
+            console.log('🎩 Hat initialized!');
+            
+            // Set initial position
             moveHatToRandomPosition();
             
+            // Mouse move event - hat runs away
             document.addEventListener('mousemove', function(e) {
                 if (hatCaught) return;
                 
@@ -975,7 +983,7 @@
                     Math.pow(e.clientY - hatY, 2)
                 );
                 
-                // Detection range decreases with difficulty
+                // Hat runs when cursor gets too close
                 if (distance < settings.detectionRange) {
                     hat.classList.add('running');
                     moveHatAwayFromCursor(e.clientX, e.clientY);
@@ -984,7 +992,18 @@
                 }
             });
             
-            hat.addEventListener('click', function() {
+            // Click event - catch the hat
+            hat.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (hatCaught) return;
+                console.log('🎩 Hat clicked!');
+                catchLeprechaun();
+            });
+            
+            // Also support touch for mobile
+            hat.addEventListener('touchstart', function(e) {
+                e.preventDefault();
                 if (hatCaught) return;
                 catchLeprechaun();
             });
@@ -1011,6 +1030,9 @@
             const hat = document.getElementById('magicHat');
             if (!hat) return;
             
+            // Prevent too frequent movements
+            if (hatMoveTimeout) return;
+            
             const settings = difficultySettings[getDifficulty()];
             
             const hatRect = hat.getBoundingClientRect();
@@ -1024,7 +1046,6 @@
             const normX = dirX / length;
             const normY = dirY / length;
             
-            // Jump distance increases with difficulty
             const jumpDistance = settings.jumpDistance;
             let newX = hatRect.left + normX * jumpDistance;
             let newY = hatRect.top + normY * jumpDistance;
@@ -1037,6 +1058,11 @@
             hat.style.top = newY + 'px';
             hat.style.right = 'auto';
             hat.style.bottom = 'auto';
+            
+            // Cooldown before next move
+            hatMoveTimeout = setTimeout(() => {
+                hatMoveTimeout = null;
+            }, 100);
         }
 
         function catchLeprechaun() {
@@ -1061,7 +1087,7 @@
             // Update difficulty warning message
             const nextLevel = getDifficulty();
             const warningText = nextLevel > 1 
-                ? `⚠️ Difficulty: ${difficultySettings[nextLevel].name} (${difficultySettings[nextLevel].stars})`
+                ? `⚠️ Next: ${difficultySettings[nextLevel].name} (${difficultySettings[nextLevel].stars})`
                 : '⚠️ Difficulty Increased!';
             document.getElementById('difficulty-warning').textContent = warningText;
             
@@ -1104,7 +1130,7 @@
                 hat.classList.remove('caught');
                 hatCaught = false;
                 moveHatToRandomPosition();
-            }, 3000);
+            }, 1000);
         }
 
         // Autocomplete for Countries
@@ -1309,9 +1335,10 @@
 
             const proximity = Math.max(0, 100 - (distance / 200));
             
+            // FIXED: Added 'data:' key
             myChart = new Chart(ctx, {
                 type: 'radar',
-                 {
+                data: {
                     labels: ['Gold Probability', 'Rainbow Quality', 'Belief Level', 'Leprechaun Proximity', 'Magic Field'],
                     datasets: [{
                         label: 'Luck Indicators',
