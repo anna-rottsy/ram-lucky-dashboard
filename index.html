@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Lucky Dashboard</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body{
+transition:0.5s;
+}
+
+.patrick{
+background: linear-gradient(135deg,#022c22,#064e3b,#065f46);
+}
+
+.card{
+background: rgba(255,255,255,0.05);
+backdrop-filter: blur(10px);
+border-radius:20px;
+padding:20px;
+}
+</style>
+
+</head>
+
+<body class="bg-slate-900 text-white">
+
+<div style="padding:40px">
+
+<button onclick="toggle()" style="padding:12px 20px;border-radius:12px;background:#1e293b">
+🍀 Toggle Saint Patrick Mood
+</button>
+
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:30px">
+
+<div class="card">
+<h2>🌈 Rainbows today</h2>
+<h1 id="rainbow" style="font-size:40px"></h1>
+</div>
+
+<div class="card">
+<h2>✨ Luck Index</h2>
+<h1 id="luck" style="font-size:40px"></h1>
+</div>
+
+<div class="card">
+<h2>🪙 Gold probability</h2>
+<h1 id="gold" style="font-size:40px"></h1>
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+function gen(){
+document.getElementById("rainbow").innerText=Math.floor(Math.random()*50)
+document.getElementById("luck").innerText=Math.floor(Math.random()*100)+"%"
+document.getElementById("gold").innerText=Math.floor(Math.random()*10)+"%"
+}
+
+gen()
+setInterval(gen,3000)
+
+function toggle(){
+document.body.classList.toggle("patrick")
+}
+
+</script>
+
+</body>
+</html>
