@@ -37,6 +37,7 @@
             overflow-x: hidden;
             position: relative;
             cursor: crosshair;
+            padding-bottom: 120px; /* Added padding to prevent overlap */
         }
 
         .background-fx {
@@ -366,6 +367,7 @@
 
         .magic-message {
             margin-top: 2rem;
+            margin-bottom: 100px; /* Added margin to prevent overlap with fixed elements */
             padding: 1.5rem;
             background: rgba(241, 196, 15, 0.1);
             border-left: 4px solid var(--gold);
@@ -662,7 +664,7 @@
 
         .hat-hint {
             position: fixed;
-            bottom: 60px;
+            bottom: 100px; /* Changed from 60px to 100px */
             left: 50%;
             transform: translateX(-50%);
             background: var(--glass-bg);
@@ -674,6 +676,7 @@
             color: var(--gold);
             z-index: 998;
             animation: hint-pulse 2s infinite;
+            white-space: nowrap;
         }
 
         @keyframes hint-pulse {
@@ -687,6 +690,7 @@
             left: 50%;
             transform: translateX(-50%);
             width: 300px;
+            max-width: 90%;
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
             padding: 10px 20px;
@@ -726,6 +730,28 @@
         @keyframes maxed-glow {
             from { box-shadow: 0 0 10px rgba(241, 196, 15, 0.5); }
             to { box-shadow: 0 0 30px rgba(241, 196, 15, 1), 0 0 50px rgba(230, 126, 34, 0.8); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding-bottom: 150px;
+            }
+            
+            .hat-hint {
+                bottom: 120px;
+                font-size: 0.75rem;
+                padding: 8px 15px;
+            }
+            
+            .faith-progress {
+                width: 90%;
+                bottom: 20px;
+            }
+            
+            .magic-message {
+                margin-bottom: 130px;
+            }
         }
     </style>
 </head>
@@ -1277,14 +1303,13 @@
             const ctx = canvas.getContext('2d');
             if (myChart) myChart.destroy();
             const proximity = Math.max(0, 100 - (distance / 200));
-            // FIXED: Added 'data:' key properly
             myChart = new Chart(ctx, {
                 type: 'radar',
-                data: {
+                 {
                     labels: ['Gold Probability', 'Rainbow Quality', 'Belief Level', 'Leprechaun Proximity', 'Magic Field'],
                     datasets: [{
                         label: 'Luck Indicators',
-                        data: [gold, rainbow, faith, proximity, Math.random() * 40 + 30],
+                         [gold, rainbow, faith, proximity, Math.random() * 40 + 30],
                         backgroundColor: 'rgba(46, 204, 113, 0.4)',
                         borderColor: '#2ecc71',
                         pointBackgroundColor: '#f1c40f',
