@@ -38,44 +38,6 @@
             position: relative;
         }
 
-        /* Language Switcher */
-        .lang-switcher {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            display: flex;
-            gap: 10px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            padding: 5px;
-            border-radius: 30px;
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        .lang-btn {
-            padding: 8px 16px;
-            border: none;
-            background: transparent;
-            color: var(--text-color);
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .lang-btn.active {
-            background: var(--primary-green);
-            color: #fff;
-            box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
-        }
-
-        .lang-btn:hover:not(.active) {
-            background: rgba(255,255,255,0.1);
-        }
-
         /* Magical Particles */
         .background-fx {
             position: fixed;
@@ -187,6 +149,7 @@
 
         .form-group {
             margin-bottom: 1.5rem;
+            position: relative;
         }
 
         label {
@@ -196,7 +159,13 @@
             font-weight: 600;
         }
 
-        select {
+        /* Autocomplete Styles */
+        .autocomplete-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        #country-input {
             width: 100%;
             padding: 1rem;
             background: rgba(0, 0, 0, 0.3);
@@ -204,14 +173,58 @@
             border-radius: 10px;
             color: white;
             font-family: inherit;
+            font-size: 1rem;
             outline: none;
             transition: 0.3s;
-            cursor: pointer;
         }
 
-        select:focus {
+        #country-input:focus {
             border-color: var(--primary-green);
             box-shadow: 0 0 15px rgba(46, 204, 113, 0.4);
+        }
+
+        .autocomplete-items {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(15, 32, 39, 0.98);
+            border: 1px solid var(--primary-green);
+            border-radius: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+            margin-top: 5px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .autocomplete-items.active {
+            display: block;
+        }
+
+        .autocomplete-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: 0.2s;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .autocomplete-item:hover {
+            background: rgba(46, 204, 113, 0.2);
+            padding-left: 20px;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item .distance {
+            font-size: 0.8rem;
+            color: var(--gold);
         }
 
         .checkbox-wrapper {
@@ -421,6 +434,21 @@
             margin-top: 5px;
             border: 1px solid var(--primary-green);
         }
+
+        .selected-country {
+            display: none;
+            margin-top: 10px;
+            padding: 8px 15px;
+            background: rgba(46, 204, 113, 0.2);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--primary-green);
+        }
+
+        .selected-country.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
     </style>
 </head>
 <body>
@@ -430,18 +458,13 @@
     <!-- Шляпа -->
     <div class="leprechaun-hat" id="magicHat" onclick="surprise()" title="Click me!">🎩</div>
 
-    <div class="lang-switcher">
-        <button class="lang-btn active" id="btn-en" onclick="setLanguage('en')">EN</button>
-        <button class="lang-btn" id="btn-ru" onclick="setLanguage('ru')">RU</button>
-    </div>
-
     <div class="container">
         <header>
-            <h1><i class="fas fa-shamrock"></i> <span data-en="Leprechaun AI" data-ru="ИИ Лепрекона">Leprechaun AI</span></h1>
-            <p class="subtitle" data-en="Gold Detection System" data-ru="Система обнаружения золота">Gold Detection System</p>
+            <h1><i class="fas fa-shamrock"></i> Leprechaun AI</h1>
+            <p class="subtitle">Gold Detection System</p>
             <div class="country-info" id="countryDisplay">
                 <i class="fas fa-map-marker-alt"></i> 
-                <span data-en="Select your country below" data-ru="Выберите страну ниже">Select your country below</span>
+                <span>Select your country below</span>
             </div>
         </header>
 
@@ -449,48 +472,51 @@
             
             <div class="card">
                 <h2 style="margin-bottom: 1.5rem; color: var(--primary-green);">
-                    <i class="fas fa-sliders-h"></i> <span data-en="Search Parameters" data-ru="Параметры поиска">Search Parameters</span>
+                    <i class="fas fa-sliders-h"></i> Search Parameters
                 </h2>
                 
                 <form id="magicForm">
                     <div class="form-group">
-                        <label data-en="Location (Country)" data-ru="Локация (Страна)">Location (Country)</label>
-                        <select id="country" onchange="updateCountryInfo()">
-                            <!-- Countries populated by JS -->
-                        </select>
+                        <label>Location (Country)</label>
+                        <div class="autocomplete-wrapper">
+                            <input type="text" id="country-input" placeholder="Start typing country name..." autocomplete="off">
+                            <div class="autocomplete-items" id="autocomplete-list"></div>
+                        </div>
+                        <input type="hidden" id="selected-country-code">
+                        <div class="selected-country" id="selected-country-display"></div>
                     </div>
 
                     <div class="form-group">
-                        <label data-en="Atmospheric Conditions" data-ru="Атмосферные условия">Atmospheric Conditions</label>
+                        <label>Atmospheric Conditions</label>
                         <label class="checkbox-wrapper">
-                            <span data-en="Rainbow Visible?" data-ru="Видна радуга?">Rainbow Visible?</span>
+                            <span>Rainbow Visible?</span>
                             <input type="checkbox" id="rainbow">
                             <div class="toggle-switch"></div>
                         </label>
                     </div>
 
                     <div class="form-group">
-                        <label data-en="Belief in Magic Level" data-ru="Уровень веры в чудеса">Belief in Magic Level</label>
+                        <label>Belief in Magic Level</label>
                         <input type="range" id="faith" min="1" max="100" value="50" style="width:100%; accent-color: var(--gold);">
                         <div style="text-align: right; font-size: 0.8rem; color: #888;">
-                            <span data-en="Current:" data-ru="Текущее:">Current:</span> <span id="faithVal">50</span>%
+                            Current: <span id="faithVal">50</span>%
                         </div>
                     </div>
 
                     <button type="button" class="btn-calc" onclick="calculateMagic()">
-                        <span data-en="Calculate Chance" data-ru="Рассчитать шанс">Calculate Chance</span>
+                        Calculate Chance
                     </button>
                 </form>
             </div>
 
             <div class="card results-section" id="results">
                 <h2 style="margin-bottom: 1.5rem; color: var(--gold);">
-                    <i class="fas fa-chart-line"></i> <span data-en="Luck Analytics" data-ru="Аналитика удачи">Luck Analytics</span>
+                    <i class="fas fa-chart-line"></i> Luck Analytics
                 </h2>
                 
                 <div class="loader" id="loader">
                     <div class="spinner"></div>
-                    <p style="margin-top: 10px; color: var(--primary-green);" data-en="Connecting to leprechauns..." data-ru="Связь с лепреконами...">
+                    <p style="margin-top: 10px; color: var(--primary-green);">
                         Connecting to leprechauns...
                     </p>
                 </div>
@@ -499,15 +525,15 @@
                     <div class="kpi-grid">
                         <div class="kpi-card">
                             <div class="kpi-value" id="kpi-gold">0%</div>
-                            <div class="kpi-label" data-en="Gold Chance" data-ru="Шанс золота">Gold Chance</div>
+                            <div class="kpi-label">Gold Chance</div>
                         </div>
                         <div class="kpi-card">
                             <div class="kpi-value" id="kpi-luck">0</div>
-                            <div class="kpi-label" data-en="Luck Index" data-ru="Индекс удачи">Luck Index</div>
+                            <div class="kpi-label">Luck Index</div>
                         </div>
                         <div class="kpi-card">
                             <div class="kpi-value" id="kpi-leprechaun" style="font-size: 1.5rem;">Low</div>
-                            <div class="kpi-label" data-en="Leprechaun Activity" data-ru="Активность лепреконов">Leprechaun Activity</div>
+                            <div class="kpi-label">Leprechaun Activity</div>
                         </div>
                     </div>
 
@@ -516,7 +542,7 @@
                     </div>
 
                     <div class="magic-message" id="magicText">
-                        <span data-en="Waiting for data..." data-ru="Ожидание данных...">Waiting for data...</span>
+                        <span>Waiting for data...</span>
                     </div>
                 </div>
             </div>
@@ -577,70 +603,31 @@
             { code: 'bd', name: 'Bangladesh', distance: 8000 },
             { code: 'ir', name: 'Iran', distance: 4800 },
             { code: 'iq', name: 'Iraq', distance: 4500 },
-            { code: 'af', name: 'Afghanistan', distance: 5800 },
             { code: 'ke', name: 'Kenya', distance: 7000 },
             { code: 'et', name: 'Ethiopia', distance: 6500 },
             { code: 'tz', name: 'Tanzania', distance: 7500 },
             { code: 'ug', name: 'Uganda', distance: 6800 },
             { code: 'gh', name: 'Ghana', distance: 5500 },
-            { code: 'ci', name: 'Ivory Coast', distance: 5800 },
-            { code: 'cm', name: 'Cameroon', distance: 6200 },
-            { code: 'sn', name: 'Senegal', distance: 4800 },
             { code: 'ma', name: 'Morocco', distance: 2200 },
             { code: 'dz', name: 'Algeria', distance: 2500 },
             { code: 'tn', name: 'Tunisia', distance: 2400 },
-            { code: 'ly', name: 'Libya', distance: 3200 },
-            { code: 'sd', name: 'Sudan', distance: 5500 },
-            { code: 'so', name: 'Somalia', distance: 7500 },
-            { code: 'mg', name: 'Madagascar', distance: 9000 },
-            { code: 'mw', name: 'Malawi', distance: 8500 },
-            { code: 'zm', name: 'Zambia', distance: 8200 },
-            { code: 'zw', name: 'Zimbabwe', distance: 8800 },
-            { code: 'bw', name: 'Botswana', distance: 9200 },
-            { code: 'na', name: 'Namibia', distance: 9500 },
-            { code: 'ao', name: 'Angola', distance: 7500 },
-            { code: 'cd', name: 'DR Congo', distance: 7000 },
-            { code: 'cg', name: 'Congo', distance: 6800 },
-            { code: 'ga', name: 'Gabon', distance: 6500 },
-            { code: 'gq', name: 'Eq. Guinea', distance: 6000 },
-            { code: 'st', name: 'Sao Tome', distance: 6200 },
-            { code: 'cv', name: 'Cape Verde', distance: 4500 },
-            { code: 'gm', name: 'Gambia', distance: 4900 },
-            { code: 'gn', name: 'Guinea', distance: 5200 },
-            { code: 'gw', name: 'Guinea-Bissau', distance: 5000 },
-            { code: 'lr', name: 'Liberia', distance: 5400 },
-            { code: 'sl', name: 'Sierra Leone', distance: 5300 },
-            { code: 'tg', name: 'Togo', distance: 5600 },
-            { code: 'bj', name: 'Benin', distance: 5700 },
-            { code: 'ne', name: 'Niger', distance: 4200 },
-            { code: 'bf', name: 'Burkina Faso', distance: 5000 },
-            { code: 'ml', name: 'Mali', distance: 4500 },
-            { code: 'mr', name: 'Mauritania', distance: 3800 },
             { code: 'co', name: 'Colombia', distance: 8500 },
             { code: 've', name: 'Venezuela', distance: 7500 },
-            { code: 'gy', name: 'Guyana', distance: 7200 },
-            { code: 'sr', name: 'Suriname', distance: 7400 },
-            { code: 'ec', name: 'Ecuador', distance: 9500 },
             { code: 'pe', name: 'Peru', distance: 10500 },
+            { code: 'ec', name: 'Ecuador', distance: 9500 },
             { code: 'bo', name: 'Bolivia', distance: 10800 },
             { code: 'py', name: 'Paraguay', distance: 11200 },
             { code: 'uy', name: 'Uruguay', distance: 11500 },
             { code: 'gl', name: 'Greenland', distance: 3500 },
             { code: 'is', name: 'Iceland', distance: 1500 },
-            { code: 'fo', name: 'Faroe Is.', distance: 1200 },
-            { code: 'sj', name: 'Svalbard', distance: 2500 },
-            { code: 'ax', name: 'Aland Is.', distance: 1800 },
-            { code: 'gg', name: 'Guernsey', distance: 500 },
-            { code: 'je', name: 'Jersey', distance: 480 },
-            { code: 'im', name: 'Isle of Man', distance: 300 },
-            { code: 'gi', name: 'Gibraltar', distance: 1800 },
+            { code: 'fo', name: 'Faroe Islands', distance: 1200 },
             { code: 'mt', name: 'Malta', distance: 2200 },
             { code: 'cy', name: 'Cyprus', distance: 3200 },
             { code: 'al', name: 'Albania', distance: 2400 },
-            { code: 'ba', name: 'Bosnia', distance: 2100 },
+            { code: 'ba', name: 'Bosnia and Herzegovina', distance: 2100 },
             { code: 'hr', name: 'Croatia', distance: 1900 },
             { code: 'me', name: 'Montenegro', distance: 2200 },
-            { code: 'mk', name: 'N. Macedonia', distance: 2300 },
+            { code: 'mk', name: 'North Macedonia', distance: 2300 },
             { code: 'rs', name: 'Serbia', distance: 2000 },
             { code: 'si', name: 'Slovenia', distance: 1500 },
             { code: 'sk', name: 'Slovakia', distance: 1600 },
@@ -654,96 +641,30 @@
             { code: 'ge', name: 'Georgia', distance: 3500 },
             { code: 'am', name: 'Armenia', distance: 3800 },
             { code: 'az', name: 'Azerbaijan', distance: 4200 },
-            { code: 'tm', name: 'Turkmenistan', distance: 5000 },
-            { code: 'tj', name: 'Tajikistan', distance: 5500 },
-            { code: 'kg', name: 'Kyrgyzstan', distance: 5800 },
             { code: 'mn', name: 'Mongolia', distance: 7500 },
-            { code: 'kp', name: 'N. Korea', distance: 8800 },
             { code: 'mm', name: 'Myanmar', distance: 9200 },
-            { code: 'la', name: 'Laos', distance: 9500 },
             { code: 'kh', name: 'Cambodia', distance: 10200 },
-            { code: 'bn', name: 'Brunei', distance: 11500 },
-            { code: 'tl', name: 'Timor-Leste', distance: 13500 },
-            { code: 'pg', name: 'Papua NG', distance: 15500 },
-            { code: 'sb', name: 'Solomon Is.', distance: 16500 },
-            { code: 'vu', name: 'Vanuatu', distance: 17000 },
-            { code: 'nc', name: 'New Caledonia', distance: 17500 },
+            { code: 'la', name: 'Laos', distance: 9500 },
             { code: 'fj', name: 'Fiji', distance: 17200 },
-            { code: 'to', name: 'Tonga', distance: 17800 },
-            { code: 'ws', name: 'Samoa', distance: 17500 },
-            { code: 'ki', name: 'Kiribati', distance: 16000 },
-            { code: 'tv', name: 'Tuvalu', distance: 17000 },
-            { code: 'nr', name: 'Nauru', distance: 15500 },
-            { code: 'mh', name: 'Marshall Is.', distance: 14500 },
-            { code: 'fm', name: 'Micronesia', distance: 14000 },
-            { code: 'pw', name: 'Palau', distance: 13500 },
-            { code: 'gu', name: 'Guam', distance: 13000 },
-            { code: 'mp', name: 'N. Mariana', distance: 13200 },
-            { code: 'as', name: 'Amer. Samoa', distance: 16500 },
-            { code: 'ck', name: 'Cook Is.', distance: 16800 },
-            { code: 'nu', name: 'Niue', distance: 17200 },
-            { code: 'tk', name: 'Tokelau', distance: 17000 },
-            { code: 'wf', name: 'Wallis & Futuna', distance: 17300 },
-            { code: 'pf', name: 'Fr. Polynesia', distance: 16000 },
-            { code: 'pn', name: 'Pitcairn', distance: 15500 },
-            { code: 'sh', name: 'St. Helena', distance: 8500 },
-            { code: 'ac', name: 'Ascension', distance: 8200 },
-            { code: 'ta', name: 'Tristan da Cunha', distance: 9500 },
-            { code: 'yt', name: 'Mayotte', distance: 8800 },
-            { code: 're', name: 'Reunion', distance: 9200 },
-            { code: 'mu', name: 'Mauritius', distance: 9500 },
-            { code: 'sc', name: 'Seychelles', distance: 8500 },
-            { code: 'km', name: 'Comoros', distance: 8600 },
-            { code: 'dj', name: 'Djibouti', distance: 6200 },
-            { code: 'er', name: 'Eritrea', distance: 6000 },
-            { code: 'ss', name: 'S. Sudan', distance: 6500 },
-            { code: 'cf', name: 'C. Afr. Rep.', distance: 6800 },
-            { code: 'td', name: 'Chad', distance: 5500 },
-            { code: 'bi', name: 'Burundi', distance: 7800 },
-            { code: 'rw', name: 'Rwanda', distance: 7500 },
-            { code: 'ls', name: 'Lesotho', distance: 9800 },
-            { code: 'sz', name: 'Eswatini', distance: 9600 },
-            { code: 'mq', name: 'Martinique', distance: 6800 },
-            { code: 'gp', name: 'Guadeloupe', distance: 6500 },
-            { code: 'bl', name: 'St. Barthelemy', distance: 6600 },
-            { code: 'mf', name: 'St. Martin', distance: 6700 },
-            { code: 'pm', name: 'St. Pierre', distance: 4200 },
-            { code: 'sx', name: 'Sint Maarten', distance: 6800 },
-            { code: 'cw', name: 'Curacao', distance: 7300 },
-            { code: 'aw', name: 'Aruba', distance: 7400 },
-            { code: 'bq', name: 'Bonaire', distance: 7500 },
-            { code: 'vi', name: 'US Virgin Is.', distance: 6900 },
-            { code: 'vg', name: 'Brit. Virgin Is.', distance: 6850 },
-            { code: 'ai', name: 'Anguilla', distance: 6800 },
-            { code: 'ag', name: 'Antigua', distance: 6750 },
-            { code: 'bb', name: 'Barbados', distance: 6600 },
-            { code: 'gd', name: 'Grenada', distance: 6900 },
-            { code: 'kn', name: 'St. Kitts', distance: 6700 },
-            { code: 'lc', name: 'St. Lucia', distance: 6800 },
-            { code: 'vc', name: 'St. Vincent', distance: 6850 },
-            { code: 'dm', name: 'Dominica', distance: 6750 },
-            { code: 'tt', name: 'Trinidad', distance: 7100 },
+            { code: 'pg', name: 'Papua New Guinea', distance: 15500 },
             { code: 'jm', name: 'Jamaica', distance: 7200 },
-            { code: 'ht', name: 'Haiti', distance: 7000 },
-            { code: 'do', name: 'Dominican Rep.', distance: 6900 },
-            { code: 'pr', name: 'Puerto Rico', distance: 6800 },
+            { code: 'tt', name: 'Trinidad and Tobago', distance: 7100 },
             { code: 'bs', name: 'Bahamas', distance: 6500 },
+            { code: 'bb', name: 'Barbados', distance: 6600 },
             { code: 'cu', name: 'Cuba', distance: 7100 },
-            { code: 'ky', name: 'Cayman Is.', distance: 7300 },
-            { code: 'tc', name: 'Turks & Caicos', distance: 6900 },
-            { code: 'bm', name: 'Bermuda', distance: 5500 },
-            { code: 'ms', name: 'Montserrat', distance: 6700 }
+            { code: 'do', name: 'Dominican Republic', distance: 6900 },
+            { code: 'ht', name: 'Haiti', distance: 7000 },
+            { code: 'pr', name: 'Puerto Rico', distance: 6800 }
         ];
 
-        let currentLang = 'en';
         let myChart = null;
+        let selectedCountry = null;
 
-        // Инициализация при загрузке страницы
+        // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Page loaded, initializing...');
-            populateCountries();
+            console.log('🍀 Page loaded!');
+            initAutocomplete();
             createMagicalEffects();
-            updateCountryInfo();
             moveHat();
             setInterval(moveHat, 6000);
             
@@ -753,28 +674,96 @@
             });
         });
 
-        function populateCountries() {
-            const select = document.getElementById('country');
-            if (!select) {
-                console.error('Country select not found!');
+        // Автокомплит для стран
+        function initAutocomplete() {
+            const input = document.getElementById('country-input');
+            const list = document.getElementById('autocomplete-list');
+            
+            if (!input || !list) {
+                console.error('Autocomplete elements not found!');
                 return;
             }
-            
-            // Очищаем существующие опции
-            select.innerHTML = '';
-            
-            // Сортировка по алфавиту
-            countries.sort((a, b) => a.name.localeCompare(b.name)).forEach(country => {
-                const option = document.createElement('option');
-                option.value = country.code;
-                const distText = country.distance === 0 
-                    ? (currentLang === 'en' ? '🍀 Home' : '🍀 Дом') 
-                    : `${country.distance} km`;
-                option.textContent = `${country.name} (${distText})`;
-                select.appendChild(option);
+
+            input.addEventListener('input', function() {
+                const val = this.value.toLowerCase();
+                list.innerHTML = '';
+                
+                if (!val) {
+                    list.classList.remove('active');
+                    return;
+                }
+
+                const filtered = countries.filter(c => 
+                    c.name.toLowerCase().includes(val)
+                ).slice(0, 10); // Показываем топ 10
+
+                if (filtered.length === 0) {
+                    list.classList.remove('active');
+                    return;
+                }
+
+                filtered.forEach(country => {
+                    const item = document.createElement('div');
+                    item.classList.add('autocomplete-item');
+                    
+                    const distanceText = country.distance === 0 
+                        ? '🍀 Home' 
+                        : `${country.distance} km`;
+                    
+                    item.innerHTML = `
+                        <span>${country.name}</span>
+                        <span class="distance">${distanceText}</span>
+                    `;
+                    
+                    item.addEventListener('click', function() {
+                        selectCountry(country);
+                    });
+                    
+                    list.appendChild(item);
+                });
+
+                list.classList.add('active');
             });
+
+            // Закрыть список при клике вне
+            document.addEventListener('click', function(e) {
+                if (e.target !== input) {
+                    list.classList.remove('active');
+                }
+            });
+
+            // Закрыть при выборе
+            input.addEventListener('blur', function() {
+                setTimeout(() => {
+                    list.classList.remove('active');
+                }, 200);
+            });
+        }
+
+        function selectCountry(country) {
+            selectedCountry = country;
+            document.getElementById('country-input').value = country.name;
+            document.getElementById('selected-country-code').value = country.code;
             
-            console.log('Countries populated:', select.options.length);
+            const display = document.getElementById('selected-country-display');
+            const distText = country.distance === 0 
+                ? "🍀 You're home!" 
+                : `${country.distance} km from Ireland`;
+            
+            display.textContent = `Selected: ${country.name} (${distText})`;
+            display.classList.add('show');
+            
+            document.getElementById('autocomplete-list').classList.remove('active');
+            
+            // Обновить инфо в шапке
+            const countryDisplay = document.getElementById('countryDisplay');
+            countryDisplay.innerHTML = `
+                <i class="fas fa-map-marker-alt"></i> 
+                ${country.name} 
+                <span class="distance-badge">${distText}</span>
+            `;
+            
+            console.log('✅ Country selected:', country.name);
         }
 
         function createMagicalEffects() {
@@ -796,92 +785,31 @@
             container.appendChild(el);
         }
 
-        function updateCountryInfo() {
-            const code = document.getElementById('country').value;
-            const country = countries.find(c => c.code === code);
-            const display = document.getElementById('countryDisplay');
-            
-            if (country && display) {
-                const isHome = country.distance === 0;
-                const distText = isHome
-                    ? (currentLang === 'en' ? "🍀 You're home!" : "🍀 Вы дома!")
-                    : (currentLang === 'en' 
-                        ? `${country.distance} km from Ireland` 
-                        : `${country.distance} км от Ирландии`);
-                
-                display.innerHTML = `
-                    <i class="fas fa-map-marker-alt"></i> 
-                    ${country.name} 
-                    <span class="distance-badge">${distText}</span>
-                `;
-            }
-        }
-
-        // Исправленная функция смены языка
-        function setLanguage(lang) {
-            console.log('Switching language to:', lang);
-            currentLang = lang;
-            
-            // Обновляем кнопки
-            const btnEn = document.getElementById('btn-en');
-            const btnRu = document.getElementById('btn-ru');
-            
-            if (btnEn) btnEn.classList.toggle('active', lang === 'en');
-            if (btnRu) btnRu.classList.toggle('active', lang === 'ru');
-            
-            // Обновляем все текстовые элементы
-            document.querySelectorAll('[data-en]').forEach(function(el) {
-                const text = el.getAttribute('data-' + lang);
-                if (text) {
-                    el.textContent = text;
-                }
-            });
-            
-            // Обновляем информацию о стране
-            updateCountryInfo();
-            
-            // Пересоздаем список стран с новым языком
-            populateCountries();
-            
-            // Если результаты уже показаны, обновляем их
-            const resultsDiv = document.getElementById('results');
-            if (resultsDiv && resultsDiv.style.display === 'block') {
-                runCalculation();
-            }
-        }
-
         function calculateMagic() {
+            if (!selectedCountry) {
+                alert('⚠️ Please select a country first!');
+                return;
+            }
+
             const resultsDiv = document.getElementById('results');
             const loader = document.getElementById('loader');
             const content = document.getElementById('content');
             
-            if (resultsDiv) resultsDiv.style.display = 'block';
-            if (content) content.style.opacity = '0.3';
-            if (loader) loader.style.display = 'block';
+            resultsDiv.style.display = 'block';
+            content.style.opacity = '0.3';
+            loader.style.display = 'block';
 
             setTimeout(function() {
-                if (loader) loader.style.display = 'none';
-                if (content) content.style.opacity = '1';
+                loader.style.display = 'none';
+                content.style.opacity = '1';
                 runCalculation();
             }, 2000);
         }
 
         function runCalculation() {
-            const countrySelect = document.getElementById('country');
-            const rainbowCheck = document.getElementById('rainbow');
-            const faithInput = document.getElementById('faith');
-            
-            if (!countrySelect || !rainbowCheck || !faithInput) {
-                console.error('Form elements not found!');
-                return;
-            }
-            
-            const country = countrySelect.value;
-            const hasRainbow = rainbowCheck.checked;
-            const faith = parseInt(faithInput.value);
-            const countryData = countries.find(c => c.code === country);
-
-            if (!countryData) return;
+            const hasRainbow = document.getElementById('rainbow').checked;
+            const faith = parseInt(document.getElementById('faith').value);
+            const countryData = selectedCountry;
 
             let goldChance = 15;
             
@@ -900,25 +828,17 @@
             animateValue("kpi-gold", 0, Math.floor(goldChance), 1500, "%");
             animateValue("kpi-luck", 0, Math.floor(Math.random() * 50 + goldChance), 1500, "");
             
-            let activity = currentLang === 'en' ? 'Low';
-            if (goldChance > 40) activity = currentLang === 'en' ? 'Medium' : 'Средняя';
-            if (goldChance > 70) activity = currentLang === 'en' ? 'High' : 'Высокая';
-            if (goldChance > 90) activity = currentLang === 'en' ? 'CRITICAL! ' : 'КРИТИЧЕСКАЯ! 🍀';
+            let activity = 'Low';
+            if (goldChance > 40) activity = 'Medium';
+            if (goldChance > 70) activity = 'High';
+            if (goldChance > 90) activity = 'CRITICAL! 🍀';
             
-            const leprechaunEl = document.getElementById('kpi-leprechaun');
-            if (leprechaunEl) leprechaunEl.textContent = activity;
+            document.getElementById('kpi-leprechaun').textContent = activity;
 
             const messages = {
-                en: {
-                    high: "<strong>AMAZING!</strong> The stars align perfectly! Wear green, follow the rainbow, and listen for jig music. Gold is near!",
-                    medium: "Good vibes detected! Your chances are decent. Look for four-leaf clovers and keep your eyes on the horizon.",
-                    low: "The magic is weak today. Try increasing your belief or planning a trip to Ireland. Every journey starts with a dream!"
-                },
-                ru: {
-                    high: "<strong>УДИВИТЕЛЬНО!</strong> Звезды сошлись! Наденьте зеленое, следуйте за радугой и прислушайтесь к ирландской музыке. Золото близко!",
-                    medium: "Хорошая энергетика! Ваши шансы неплохие. Ищите четырехлистный клевер и следите за горизонтом.",
-                    low: "Магия сегодня слаба. Попробуйте увеличить веру в чудеса или спланируйте поездку в Ирландию. Каждое путешествие начинается с мечты!"
-                }
+                high: "<strong>AMAZING!</strong> The stars align perfectly! Wear green, follow the rainbow, and listen for jig music. Gold is near!",
+                medium: "Good vibes detected! Your chances are decent. Look for four-leaf clovers and keep your eyes on the horizon.",
+                low: "The magic is weak today. Try increasing your belief or planning a trip to Ireland. Every journey starts with a dream!"
             };
             
             const msgBox = document.getElementById('magicText');
@@ -926,10 +846,8 @@
             if (goldChance > 70) msgKey = 'high';
             else if (goldChance > 40) msgKey = 'medium';
             
-            if (msgBox) {
-                msgBox.innerHTML = messages[currentLang][msgKey];
-                msgBox.style.borderColor = goldChance > 70 ? '#2ecc71' : (goldChance > 40 ? '#f1c40f' : '#e74c3c');
-            }
+            msgBox.innerHTML = messages[msgKey];
+            msgBox.style.borderColor = goldChance > 70 ? '#2ecc71' : (goldChance > 40 ? '#f1c40f' : '#e74c3c');
 
             if (goldChance > 85) launchConfetti();
             
@@ -960,19 +878,14 @@
                 myChart.destroy();
             }
 
-            const labels = currentLang === 'en' 
-                ? ['Gold Probability', 'Rainbow Quality', 'Belief Level', 'Leprechaun Proximity', 'Magic Field']
-                : ['Вероятность золота', 'Качество радуги', 'Уровень веры', 'Близость лепрекона', 'Магическое поле'];
-
             const proximity = Math.max(0, 100 - (distance / 200));
             
-            // ИСПРАВЛЕНО: Добавлен ключ 'data:'
             myChart = new Chart(ctx, {
                 type: 'radar',
                 data: {
-                    labels: labels,
+                    labels: ['Gold Probability', 'Rainbow Quality', 'Belief Level', 'Leprechaun Proximity', 'Magic Field'],
                     datasets: [{
-                        label: currentLang === 'en' ? 'Luck Indicators' : 'Показатели удачи',
+                        label: 'Luck Indicators',
                         data: [gold, rainbow, faith, proximity, Math.random() * 40 + 30],
                         backgroundColor: 'rgba(46, 204, 113, 0.4)',
                         borderColor: '#2ecc71',
@@ -1045,14 +958,8 @@
         }
 
         function surprise() {
-            const surprises = {
-                en: ["Top o' the morning!", "Luck be with you!", "Find that gold!", "Sláinte!"],
-                ru: ["Доброго утра!", "Удачи тебе!", "Найди золото!", "Слава Ирландии!"]
-            };
-            
-            const msgs = surprises[currentLang];
+            const msgs = ["Top o' the morning!", "Luck be with you!", "Find that gold!", "Sláinte!"];
             const msg = msgs[Math.floor(Math.random() * msgs.length)];
-            
             alert('🎩 ' + msg + ' 🍀');
             launchConfetti();
         }
