@@ -36,6 +36,7 @@
             min-height: 100vh;
             overflow-x: hidden;
             position: relative;
+            cursor: crosshair;
         }
 
         /* Magical Particles */
@@ -409,20 +410,145 @@
 
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Moving Hat Styles */
+        /* Running Hat Styles */
         .leprechaun-hat {
             position: fixed;
             font-size: 4rem;
-            z-index: 100;
+            z-index: 1000;
             cursor: pointer;
-            transition: all 1s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.6));
-            animation: float 3s ease-in-out infinite;
+            animation: float 2s ease-in-out infinite;
+            user-select: none;
+        }
+
+        .leprechaun-hat.running {
+            animation: run 0.5s ease-in-out infinite;
         }
 
         @keyframes float {
             0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-15px) rotate(5deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        @keyframes run {
+            0%, 100% { transform: rotate(-10deg) scale(1); }
+            50% { transform: rotate(10deg) scale(1.1); }
+        }
+
+        .leprechaun-hat.caught {
+            animation: caught 0.5s ease-out forwards;
+        }
+
+        @keyframes caught {
+            0% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.5) rotate(180deg); }
+            100% { transform: scale(0) rotate(360deg); opacity: 0; }
+        }
+
+        /* Falling Coins Animation */
+        .falling-coins-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+            display: none;
+        }
+
+        .falling-coin {
+            position: absolute;
+            font-size: 2.5rem;
+            animation: coin-fall 3s linear forwards;
+            text-shadow: 0 0 10px rgba(241, 196, 15, 0.8);
+        }
+
+        @keyframes coin-fall {
+            0% { 
+                transform: translateY(-50px) rotate(0deg) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+                transform: translateY(0) rotate(36deg) scale(1);
+            }
+            100% { 
+                transform: translateY(100vh) rotate(720deg) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* Catch Message */
+        .catch-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.95), rgba(39, 174, 96, 0.95));
+            padding: 3rem 4rem;
+            border-radius: 30px;
+            text-align: center;
+            z-index: 1001;
+            border: 4px solid var(--gold);
+            box-shadow: 0 0 50px rgba(241, 196, 15, 0.8);
+            display: none;
+            animation: pop-in 0.5s ease-out forwards;
+        }
+
+        .catch-message.show {
+            display: block;
+        }
+
+        @keyframes pop-in {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .catch-message h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            text-shadow: 0 0 20px rgba(241, 196, 15, 0.8);
+        }
+
+        .catch-message p {
+            font-size: 1.3rem;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .catch-message .close-btn {
+            padding: 1rem 3rem;
+            background: var(--gold);
+            color: var(--dark-bg);
+            border: none;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .catch-message .close-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.8);
+        }
+
+        .catch-count {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid var(--gold);
+            font-size: 0.9rem;
+            z-index: 998;
         }
 
         .distance-badge {
@@ -449,6 +575,28 @@
             display: block;
             animation: slideIn 0.3s ease;
         }
+
+        /* Hint text */
+        .hat-hint {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            padding: 10px 25px;
+            border-radius: 20px;
+            border: 1px solid var(--gold);
+            font-size: 0.85rem;
+            color: var(--gold);
+            z-index: 998;
+            animation: hint-pulse 2s infinite;
+        }
+
+        @keyframes hint-pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -456,7 +604,28 @@
     <div class="background-fx" id="bg-fx"></div>
     
     <!-- Шляпа -->
-    <div class="leprechaun-hat" id="magicHat" onclick="surprise()" title="Click me!">🎩</div>
+    <div class="leprechaun-hat" id="magicHat">🎩</div>
+    
+    <!-- Контейнер для падающих монет -->
+    <div class="falling-coins-container" id="coins-container"></div>
+    
+    <!-- Сообщение о поимке -->
+    <div class="catch-message" id="catch-message">
+        <h2>🍀 ПОЗДРАВЛЯЕМ! 🍀</h2>
+        <p>Вы напали на след лепрекона!</p>
+        <p style="font-size: 1rem; opacity: 0.8;">Теперь ваш шанс найти золото увеличен!</p>
+        <button class="close-btn" onclick="closeCatchMessage()">Забрать награду</button>
+    </div>
+    
+    <!-- Счётчик поимок -->
+    <div class="catch-count" id="catch-count">
+        <i class="fas fa-hat-cowboy"></i> Поймано шляп: <span id="catch-number">0</span>
+    </div>
+    
+    <!-- Подсказка -->
+    <div class="hat-hint">
+        ✨ Поймай убегающую шляпу лепрекона! ✨
+    </div>
 
     <div class="container">
         <header>
@@ -659,20 +828,171 @@
 
         let myChart = null;
         let selectedCountry = null;
+        let catchCount = 0;
+        let hatCaught = false;
 
         // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🍀 Page loaded!');
             initAutocomplete();
             createMagicalEffects();
-            moveHat();
-            setInterval(moveHat, 6000);
-            
-            // Обновление значения ползунка
-            document.getElementById('faith').addEventListener('input', function(e) {
-                document.getElementById('faithVal').textContent = e.target.value;
-            });
+            initHat();
         });
+
+        // Инициализация шляпы
+        function initHat() {
+            const hat = document.getElementById('magicHat');
+            if (!hat) return;
+            
+            // Начальная позиция
+            moveHatToRandomPosition();
+            
+            // Шляпа убегает от курсора
+            document.addEventListener('mousemove', function(e) {
+                if (hatCaught) return;
+                
+                const hatRect = hat.getBoundingClientRect();
+                const hatX = hatRect.left + hatRect.width / 2;
+                const hatY = hatRect.top + hatRect.height / 2;
+                
+                const distance = Math.sqrt(
+                    Math.pow(e.clientX - hatX, 2) + 
+                    Math.pow(e.clientY - hatY, 2)
+                );
+                
+                // Если курсор ближе 150px - шляпа убегает
+                if (distance < 150) {
+                    hat.classList.add('running');
+                    moveHatAwayFromCursor(e.clientX, e.clientY);
+                } else {
+                    hat.classList.remove('running');
+                }
+            });
+            
+            // Клик по шляпе
+            hat.addEventListener('click', function() {
+                if (hatCaught) return;
+                catchLeprechaun();
+            });
+        }
+
+        function moveHatToRandomPosition() {
+            const hat = document.getElementById('magicHat');
+            if (!hat) return;
+            
+            const padding = 100;
+            const maxX = window.innerWidth - hat.offsetWidth - padding;
+            const maxY = window.innerHeight - hat.offsetHeight - padding;
+            
+            const randomX = Math.random() * maxX + padding;
+            const randomY = Math.random() * maxY + padding;
+            
+            hat.style.left = randomX + 'px';
+            hat.style.top = randomY + 'px';
+            hat.style.right = 'auto';
+            hat.style.bottom = 'auto';
+        }
+
+        function moveHatAwayFromCursor(cursorX, cursorY) {
+            const hat = document.getElementById('magicHat');
+            if (!hat) return;
+            
+            const hatRect = hat.getBoundingClientRect();
+            const hatX = hatRect.left + hatRect.width / 2;
+            const hatY = hatRect.top + hatRect.height / 2;
+            
+            // Направление от курсора
+            const dirX = hatX - cursorX;
+            const dirY = hatY - cursorY;
+            
+            // Нормализация
+            const length = Math.sqrt(dirX * dirX + dirY * dirY);
+            const normX = dirX / length;
+            const normY = dirY / length;
+            
+            // Новая позиция (убегает на 200px)
+            const jumpDistance = 200;
+            let newX = hatRect.left + normX * jumpDistance;
+            let newY = hatRect.top + normY * jumpDistance;
+            
+            // Ограничения экрана
+            const padding = 50;
+            newX = Math.max(padding, Math.min(window.innerWidth - hat.offsetWidth - padding, newX));
+            newY = Math.max(padding, Math.min(window.innerHeight - hat.offsetHeight - padding, newY));
+            
+            hat.style.left = newX + 'px';
+            hat.style.top = newY + 'px';
+            hat.style.right = 'auto';
+            hat.style.bottom = 'auto';
+        }
+
+        function catchLeprechaun() {
+            hatCaught = true;
+            catchCount++;
+            
+            const hat = document.getElementById('magicHat');
+            hat.classList.remove('running');
+            hat.classList.add('caught');
+            
+            // Обновляем счётчик
+            document.getElementById('catch-number').textContent = catchCount;
+            
+            // Запускаем падающие монеты
+            startFallingCoins();
+            
+            // Показываем сообщение
+            setTimeout(() => {
+                document.getElementById('catch-message').classList.add('show');
+            }, 500);
+            
+            // Увеличиваем удачу
+            const faithInput = document.getElementById('faith');
+            if (faithInput) {
+                faithInput.value = Math.min(100, parseInt(faithInput.value) + 20);
+                document.getElementById('faithVal').textContent = faithInput.value;
+            }
+        }
+
+        function startFallingCoins() {
+            const container = document.getElementById('coins-container');
+            container.style.display = 'block';
+            container.innerHTML = '';
+            
+            // Создаём 50 падающих монет
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const coin = document.createElement('div');
+                    coin.classList.add('falling-coin');
+                    coin.textContent = '🪙';
+                    coin.style.left = Math.random() * 100 + 'vw';
+                    coin.style.animationDelay = Math.random() * 2 + 's';
+                    coin.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    container.appendChild(coin);
+                    
+                    // Удаляем монету после анимации
+                    setTimeout(() => {
+                        coin.remove();
+                    }, 5000);
+                }, i * 100);
+            }
+            
+            // Скрываем контейнер через 5 секунд
+            setTimeout(() => {
+                container.style.display = 'none';
+            }, 6000);
+        }
+
+        function closeCatchMessage() {
+            document.getElementById('catch-message').classList.remove('show');
+            
+            // Возвращаем шляпу через 3 секунды
+            setTimeout(() => {
+                const hat = document.getElementById('magicHat');
+                hat.classList.remove('caught');
+                hatCaught = false;
+                moveHatToRandomPosition();
+            }, 3000);
+        }
 
         // Автокомплит для стран
         function initAutocomplete() {
@@ -695,7 +1015,7 @@
 
                 const filtered = countries.filter(c => 
                     c.name.toLowerCase().includes(val)
-                ).slice(0, 10); // Показываем топ 10
+                ).slice(0, 10);
 
                 if (filtered.length === 0) {
                     list.classList.remove('active');
@@ -725,14 +1045,12 @@
                 list.classList.add('active');
             });
 
-            // Закрыть список при клике вне
             document.addEventListener('click', function(e) {
                 if (e.target !== input) {
                     list.classList.remove('active');
                 }
             });
 
-            // Закрыть при выборе
             input.addEventListener('blur', function() {
                 setTimeout(() => {
                     list.classList.remove('active');
@@ -755,15 +1073,12 @@
             
             document.getElementById('autocomplete-list').classList.remove('active');
             
-            // Обновить инфо в шапке
             const countryDisplay = document.getElementById('countryDisplay');
             countryDisplay.innerHTML = `
                 <i class="fas fa-map-marker-alt"></i> 
                 ${country.name} 
                 <span class="distance-badge">${distText}</span>
             `;
-            
-            console.log('✅ Country selected:', country.name);
         }
 
         function createMagicalEffects() {
@@ -812,6 +1127,9 @@
             const countryData = selectedCountry;
 
             let goldChance = 15;
+            
+            // Бонус за поимку шляпы
+            if (hatCaught) goldChance += 25;
             
             if (countryData.distance === 0) goldChance += 45;
             else if (countryData.distance < 1000) goldChance += 30;
@@ -955,32 +1273,6 @@
 
                 if (Date.now() < end) requestAnimationFrame(frame);
             }());
-        }
-
-        function surprise() {
-            const msgs = ["Top o' the morning!", "Luck be with you!", "Find that gold!", "Sláinte!"];
-            const msg = msgs[Math.floor(Math.random() * msgs.length)];
-            alert('🎩 ' + msg + ' 🍀');
-            launchConfetti();
-        }
-
-        // Логика движения шляпы
-        function moveHat() {
-            const hat = document.getElementById('magicHat');
-            if (!hat) return;
-            
-            const corners = [
-                { top: '20px', left: '20px', right: 'auto', bottom: 'auto' },
-                { top: '20px', left: 'auto', right: '20px', bottom: 'auto' },
-                { top: 'auto', left: '20px', right: 'auto', bottom: '20px' },
-                { top: 'auto', left: 'auto', right: '20px', bottom: '20px' }
-            ];
-            
-            const randomCorner = corners[Math.floor(Math.random() * corners.length)];
-            Object.assign(hat.style, randomCorner);
-            
-            const rotate = Math.random() > 0.5 ? 'rotate(10deg)' : 'rotate(-10deg)';
-            hat.style.transform = rotate;
         }
     </script>
 </body>
