@@ -1,15 +1,13 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>St. Patrick's Magic | Калькулятор Золота</title>
+    <title>St. Patrick's Magic | Gold Finder</title>
     
-    <!-- Подключаем шрифты и иконки -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <!-- Подключаем библиотеки для графиков и эффектов -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 
@@ -22,6 +20,7 @@
             --glass-bg: rgba(255, 255, 255, 0.05);
             --glass-border: rgba(255, 255, 255, 0.1);
             --text-color: #ecf0f1;
+            --magic-glow: 0 0 20px rgba(46, 204, 113, 0.6);
         }
 
         * {
@@ -39,7 +38,54 @@
             position: relative;
         }
 
-        /* Анимированный фон */
+        /* Language Switcher */
+        .lang-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            padding: 10px;
+            border-radius: 30px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .lang-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            border: 2px solid transparent;
+        }
+
+        .lang-btn.active {
+            background: var(--primary-green);
+            border-color: var(--gold);
+            box-shadow: var(--magic-glow);
+        }
+
+        .lang-btn:hover:not(.active) {
+            border-color: var(--primary-green);
+        }
+
+        /* Magical Particles */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
         .background-fx {
             position: fixed;
             top: 0;
@@ -47,19 +93,38 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 0;
+            z-index: 1;
             overflow: hidden;
         }
 
-        .clover {
+        .clover, .gold-coin, .sparkle {
             position: absolute;
-            color: rgba(46, 204, 113, 0.1);
-            font-size: 2rem;
             animation: fall linear infinite;
+        }
+
+        .clover {
+            color: rgba(46, 204, 113, 0.15);
+            font-size: 2rem;
+        }
+
+        .gold-coin {
+            color: rgba(241, 196, 15, 0.2);
+            font-size: 1.5rem;
+        }
+
+        .sparkle {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1rem;
+            animation: sparkle-fall 8s linear infinite;
         }
 
         @keyframes fall {
             to { transform: translateY(100vh) rotate(360deg); }
+        }
+
+        @keyframes sparkle-fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
         }
 
         .container {
@@ -67,7 +132,7 @@
             margin: 0 auto;
             padding: 2rem;
             position: relative;
-            z-index: 1;
+            z-index: 2;
         }
 
         header {
@@ -82,14 +147,36 @@
             background: linear-gradient(to right, var(--primary-green), var(--gold));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(46, 204, 113, 0.5);
+            text-shadow: 0 0 30px rgba(46, 204, 113, 0.5);
             margin-bottom: 0.5rem;
+            animation: glow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 20px rgba(46, 204, 113, 0.5)); }
+            to { filter: drop-shadow(0 0 30px rgba(241, 196, 15, 0.8)); }
         }
 
         .subtitle {
             color: #bdc3c7;
             font-size: 1.2rem;
             letter-spacing: 2px;
+        }
+
+        .country-info {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 10px 20px;
+            background: var(--glass-bg);
+            border-radius: 20px;
+            border: 1px solid var(--gold);
+            font-size: 0.9rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 5px rgba(241, 196, 15, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(241, 196, 15, 0.8); }
         }
 
         .dashboard-grid {
@@ -100,6 +187,7 @@
 
         @media (max-width: 900px) {
             .dashboard-grid { grid-template-columns: 1fr; }
+            h1 { font-size: 2.5rem; }
         }
 
         .card {
@@ -109,12 +197,38 @@
             border-radius: 20px;
             padding: 2rem;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(46, 204, 113, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s;
+            opacity: 0;
+        }
+
+        .card:hover::before {
+            animation: shimmer 0.5s ease-in-out;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); opacity: 0; }
         }
 
         .card:hover {
             transform: translateY(-5px);
             border-color: var(--primary-green);
+            box-shadow: 0 12px 40px rgba(46, 204, 113, 0.3);
         }
 
         .form-group {
@@ -128,7 +242,7 @@
             font-weight: 600;
         }
 
-        select, .checkbox-wrapper {
+        select {
             width: 100%;
             padding: 1rem;
             background: rgba(0, 0, 0, 0.3);
@@ -138,11 +252,12 @@
             font-family: inherit;
             outline: none;
             transition: 0.3s;
+            cursor: pointer;
         }
 
         select:focus {
             border-color: var(--primary-green);
-            box-shadow: 0 0 10px rgba(46, 204, 113, 0.3);
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.4);
         }
 
         .checkbox-wrapper {
@@ -150,6 +265,16 @@
             align-items: center;
             justify-content: space-between;
             cursor: pointer;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+            transition: 0.3s;
+        }
+
+        .checkbox-wrapper:hover {
+            border-color: var(--primary-green);
+            background: rgba(46, 204, 113, 0.1);
         }
 
         .toggle-switch {
@@ -171,10 +296,12 @@
             background: white;
             border-radius: 50%;
             transition: 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
 
         input[type="checkbox"]:checked + .toggle-switch {
             background: var(--primary-green);
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.6);
         }
 
         input[type="checkbox"]:checked + .toggle-switch::after {
@@ -185,9 +312,9 @@
             display: none;
         }
 
-        button.btn-calc {
+        .btn-calc {
             width: 100%;
-            padding: 1rem;
+            padding: 1.2rem;
             background: linear-gradient(45deg, var(--dark-green), var(--primary-green));
             border: none;
             border-radius: 10px;
@@ -195,15 +322,35 @@
             font-weight: bold;
             font-size: 1.1rem;
             cursor: pointer;
-            transition: 0.3s;
+            transition: all 0.3s;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+            position: relative;
+            overflow: hidden;
         }
 
-        button.btn-calc:hover {
+        .btn-calc::before {
+            content: '✨';
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            animation: twinkle 1.5s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; transform: translateY(-50%) scale(1); }
+            50% { opacity: 0.5; transform: translateY(-50%) scale(1.2); }
+        }
+
+        .btn-calc:hover {
             transform: scale(1.02);
-            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6);
+            box-shadow: 0 6px 25px rgba(46, 204, 113, 0.7);
+        }
+
+        .btn-calc:active {
+            transform: scale(0.98);
         }
 
         .results-section {
@@ -218,12 +365,35 @@
             margin-bottom: 2rem;
         }
 
+        @media (max-width: 600px) {
+            .kpi-grid { grid-template-columns: 1fr; }
+        }
+
         .kpi-card {
-            background: rgba(0,0,0,0.2);
+            background: rgba(0,0,0,0.3);
             padding: 1.5rem;
             border-radius: 15px;
             text-align: center;
-            border: 1px solid var(--gold);
+            border: 2px solid var(--gold);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(241, 196, 15, 0.2), transparent);
+            animation: rotate 4s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         .kpi-value {
@@ -231,12 +401,17 @@
             font-weight: 700;
             color: var(--gold);
             font-family: 'Cinzel', serif;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 0 10px rgba(241, 196, 15, 0.8);
         }
 
         .kpi-label {
             font-size: 0.9rem;
             color: #bdc3c7;
             margin-top: 0.5rem;
+            position: relative;
+            z-index: 1;
         }
 
         .chart-container {
@@ -247,11 +422,18 @@
 
         .magic-message {
             margin-top: 2rem;
-            padding: 1rem;
+            padding: 1.5rem;
             background: rgba(241, 196, 15, 0.1);
             border-left: 4px solid var(--gold);
-            border-radius: 5px;
+            border-radius: 10px;
             font-style: italic;
+            animation: slideIn 0.5s ease;
+            box-shadow: 0 4px 15px rgba(241, 196, 15, 0.2);
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         @keyframes fadeInDown {
@@ -268,90 +450,140 @@
             text-align: center;
             margin: 2rem 0;
         }
+
         .spinner {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             border: 5px solid rgba(255,255,255,0.1);
             border-top: 5px solid var(--gold);
+            border-right: 5px solid var(--primary-green);
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto;
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.5);
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+
+        .leprechaun-hat {
+            position: fixed;
+            bottom: -100px;
+            right: 50px;
+            font-size: 5rem;
+            animation: peek 3s ease-in-out infinite;
+            z-index: 100;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .leprechaun-hat:hover {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        @keyframes peek {
+            0%, 100% { bottom: -100px; }
+            50% { bottom: 20px; }
+        }
+
+        .distance-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: rgba(46, 204, 113, 0.2);
+            border-radius: 15px;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            border: 1px solid var(--primary-green);
+        }
     </style>
 </head>
 <body>
 
+    <div id="particles-js"></div>
     <div class="background-fx" id="bg-fx"></div>
+    
+    <div class="leprechaun-hat" onclick="surprise()" title="Click me!">🎩</div>
+
+    <div class="lang-switcher">
+        <button class="lang-btn active" onclick="switchLang('en')">EN</button>
+        <button class="lang-btn" onclick="switchLang('ru')">RU</button>
+    </div>
 
     <div class="container">
         <header>
-            <h1><i class="fas fa-shamrock"></i> Leprechaun AI</h1>
-            <p class="subtitle">Система анализа вероятности обнаружения золота</p>
+            <h1><i class="fas fa-shamrock"></i> <span data-en="Leprechaun AI" data-ru="ИИ Лепрекона">Leprechaun AI</span></h1>
+            <p class="subtitle" data-en="Gold Detection System" data-ru="Система обнаружения золота">Gold Detection System</p>
+            <div class="country-info" id="countryDisplay">
+                <i class="fas fa-map-marker-alt"></i> 
+                <span data-en="Select your country" data-ru="Выберите страну">Select your country</span>
+            </div>
         </header>
 
         <div class="dashboard-grid">
             
             <div class="card">
-                <h2 style="margin-bottom: 1.5rem; color: var(--primary-green);">Параметры поиска</h2>
+                <h2 style="margin-bottom: 1.5rem; color: var(--primary-green);">
+                    <i class="fas fa-sliders-h"></i> <span data-en="Search Parameters" data-ru="Параметры поиска">Search Parameters</span>
+                </h2>
                 
                 <form id="magicForm">
                     <div class="form-group">
-                        <label>Локация (Страна)</label>
-                        <select id="country">
-                            <option value="ireland">Ирландия (Дублин)</option>
-                            <option value="usa">США (Бостон)</option>
-                            <option value="russia">Россия (Москва)</option>
-                            <option value="uk">Великобритания (Лондон)</option>
-                            <option value="canada">Канада (Монреаль)</option>
-                            <option value="australia">Австралия (Сидней)</option>
-                            <option value="mars">Марс (Колония)</option>
+                        <label data-en="Location (Country)" data-ru="Локация (Страна)">Location (Country)</label>
+                        <select id="country" onchange="updateCountryInfo()">
+                            <!-- Countries will be populated by JS -->
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label>Атмосферные явления</label>
+                        <label data-en="Atmospheric Conditions" data-ru="Атмосферные условия">Atmospheric Conditions</label>
                         <label class="checkbox-wrapper">
-                            <span>Видна радуга?</span>
+                            <span data-en="Rainbow Visible?" data-ru="Видна радуга?">Rainbow Visible?</span>
                             <input type="checkbox" id="rainbow">
                             <div class="toggle-switch"></div>
                         </label>
                     </div>
 
                     <div class="form-group">
-                        <label>Уровень веры в чудеса</label>
+                        <label data-en="Belief in Magic Level" data-ru="Уровень веры в чудеса">Belief in Magic Level</label>
                         <input type="range" id="faith" min="1" max="100" value="50" style="width:100%; accent-color: var(--gold);">
-                        <div style="text-align: right; font-size: 0.8rem; color: #888;">Текущее значение: <span id="faithVal">50</span>%</div>
+                        <div style="text-align: right; font-size: 0.8rem; color: #888;">
+                            <span data-en="Current:" data-ru="Текущее:">Current:</span> <span id="faithVal">50</span>%
+                        </div>
                     </div>
 
                     <button type="button" class="btn-calc" onclick="calculateMagic()">
-                        <i class="fas fa-magic"></i> Рассчитать Шанс
+                        <span data-en="Calculate Chance" data-ru="Рассчитать шанс">Calculate Chance</span>
                     </button>
                 </form>
             </div>
 
             <div class="card results-section" id="results">
-                <h2 style="margin-bottom: 1.5rem; color: var(--gold);">Аналитика Удачи</h2>
+                <h2 style="margin-bottom: 1.5rem; color: var(--gold);">
+                    <i class="fas fa-chart-line"></i> <span data-en="Luck Analytics" data-ru="Аналитика удачи">Luck Analytics</span>
+                </h2>
                 
                 <div class="loader" id="loader">
                     <div class="spinner"></div>
-                    <p style="margin-top: 10px; color: var(--primary-green);">Связь с лепреконами...</p>
+                    <p style="margin-top: 10px; color: var(--primary-green);" data-en="Connecting to leprechauns..." data-ru="Связь с лепреконами...">
+                        Connecting to leprechauns...
+                    </p>
                 </div>
 
                 <div id="content">
                     <div class="kpi-grid">
                         <div class="kpi-card">
                             <div class="kpi-value" id="kpi-gold">0%</div>
-                            <div class="kpi-label">Шанс Золота</div>
+                            <div class="kpi-label" data-en="Gold Chance" data-ru="Шанс золота">Gold Chance</div>
                         </div>
                         <div class="kpi-card">
                             <div class="kpi-value" id="kpi-luck">0</div>
-                            <div class="kpi-label">Индекс Удачи</div>
+                            <div class="kpi-label" data-en="Luck Index" data-ru="Индекс удачи">Luck Index</div>
                         </div>
                         <div class="kpi-card">
-                            <div class="kpi-value" id="kpi-leprechaun">Низкий</div>
-                            <div class="kpi-label">Активность Лепреконов</div>
+                            <div class="kpi-value" id="kpi-leprechaun" style="font-size: 1.5rem;">Low</div>
+                            <div class="kpi-label" data-en="Leprechaun Activity" data-ru="Активность лепреконов">Leprechaun Activity</div>
                         </div>
                     </div>
 
@@ -360,7 +592,7 @@
                     </div>
 
                     <div class="magic-message" id="magicText">
-                        Ожидание данных...
+                        <span data-en="Waiting for data..." data-ru="Ожидание данных...">Waiting for data...</span>
                     </div>
                 </div>
             </div>
@@ -368,25 +600,142 @@
     </div>
 
     <script>
-        function createClovers() {
-            const container = document.getElementById('bg-fx');
-            for(let i=0; i<20; i++) {
-                const clover = document.createElement('div');
-                clover.classList.add('clover');
-                clover.innerHTML = '<i class="fas fa-leaf"></i>';
-                clover.style.left = Math.random() * 100 + 'vw';
-                clover.style.animationDuration = (Math.random() * 10 + 10) + 's';
-                clover.style.fontSize = (Math.random() * 2 + 1) + 'rem';
-                container.appendChild(clover);
-            }
-        }
-        createClovers();
+        // Countries database with distances to Ireland
+        const countries = [
+            { code: 'ie', name: 'Ireland', distance: 0, region: 'Europe' },
+            { code: 'gb', name: 'United Kingdom', distance: 450, region: 'Europe' },
+            { code: 'us', name: 'United States', distance: 5100, region: 'North America' },
+            { code: 'ca', name: 'Canada', distance: 4800, region: 'North America' },
+            { code: 'au', name: 'Australia', distance: 17000, region: 'Oceania' },
+            { code: 'de', name: 'Germany', distance: 1100, region: 'Europe' },
+            { code: 'fr', name: 'France', distance: 800, region: 'Europe' },
+            { code: 'es', name: 'Spain', distance: 1450, region: 'Europe' },
+            { code: 'it', name: 'Italy', distance: 1600, region: 'Europe' },
+            { code: 'ru', name: 'Russia', distance: 2500, region: 'Europe/Asia' },
+            { code: 'cn', name: 'China', distance: 8200, region: 'Asia' },
+            { code: 'jp', name: 'Japan', distance: 9500, region: 'Asia' },
+            { code: 'br', name: 'Brazil', distance: 7800, region: 'South America' },
+            { code: 'mx', name: 'Mexico', distance: 7200, region: 'North America' },
+            { code: 'in', name: 'India', distance: 7500, region: 'Asia' },
+            { code: 'za', name: 'South Africa', distance: 9500, region: 'Africa' },
+            { code: 'eg', name: 'Egypt', distance: 3800, region: 'Africa' },
+            { code: 'ng', name: 'Nigeria', distance: 5200, region: 'Africa' },
+            { code: 'ar', name: 'Argentina', distance: 11500, region: 'South America' },
+            { code: 'cl', name: 'Chile', distance: 12800, region: 'South America' },
+            { code: 'nz', name: 'New Zealand', distance: 19000, region: 'Oceania' },
+            { code: 'kr', name: 'South Korea', distance: 9000, region: 'Asia' },
+            { code: 'th', name: 'Thailand', distance: 10000, region: 'Asia' },
+            { code: 'sg', name: 'Singapore', distance: 10800, region: 'Asia' },
+            { code: 'ae', name: 'UAE', distance: 5800, region: 'Asia' },
+            { code: 'sa', name: 'Saudi Arabia', distance: 5200, region: 'Asia' },
+            { code: 'tr', name: 'Turkey', distance: 2800, region: 'Europe/Asia' },
+            { code: 'pl', name: 'Poland', distance: 1400, region: 'Europe' },
+            { code: 'nl', name: 'Netherlands', distance: 800, region: 'Europe' },
+            { code: 'be', name: 'Belgium', distance: 850, region: 'Europe' },
+            { code: 'se', name: 'Sweden', distance: 1600, region: 'Europe' },
+            { code: 'no', name: 'Norway', distance: 1400, region: 'Europe' },
+            { code: 'dk', name: 'Denmark', distance: 1100, region: 'Europe' },
+            { code: 'fi', name: 'Finland', distance: 1900, region: 'Europe' },
+            { code: 'pt', name: 'Portugal', distance: 1600, region: 'Europe' },
+            { code: 'gr', name: 'Greece', distance: 2600, region: 'Europe' },
+            { code: 'cz', name: 'Czech Republic', distance: 1300, region: 'Europe' },
+            { code: 'at', name: 'Austria', distance: 1300, region: 'Europe' },
+            { code: 'ch', name: 'Switzerland', distance: 1100, region: 'Europe' },
+            { code: 'ie', name: 'Ireland', distance: 0, region: 'Europe' }
+        ];
 
-        document.getElementById('faith').addEventListener('input', function(e) {
-            document.getElementById('faithVal').innerText = e.target.value;
+        let currentLang = 'en';
+        let myChart = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            populateCountries();
+            createMagicalEffects();
+            updateCountryInfo();
         });
 
-        let myChart = null;
+        function populateCountries() {
+            const select = document.getElementById('country');
+            countries.sort((a, b) => a.name.localeCompare(b.name)).forEach(country => {
+                const option = document.createElement('option');
+                option.value = country.code;
+                option.textContent = `${country.name} (${country.distance === 0 ? '🍀 Home' : country.distance + ' km'})`;
+                select.appendChild(option);
+            });
+        }
+
+        function createMagicalEffects() {
+            const container = document.getElementById('bg-fx');
+            
+            // Create falling clovers
+            for(let i = 0; i < 15; i++) {
+                createFallingElement(container, 'clover', '🍀');
+            }
+            
+            // Create falling gold coins
+            for(let i = 0; i < 8; i++) {
+                createFallingElement(container, 'gold-coin', '🪙');
+            }
+            
+            // Create sparkles
+            for(let i = 0; i < 20; i++) {
+                createFallingElement(container, 'sparkle', '✨');
+            }
+        }
+
+        function createFallingElement(container, className, content) {
+            const el = document.createElement('div');
+            el.classList.add(className);
+            el.textContent = content;
+            el.style.left = Math.random() * 100 + 'vw';
+            el.style.animationDuration = (Math.random() * 10 + 8) + 's';
+            el.style.animationDelay = Math.random() * 5 + 's';
+            el.style.fontSize = (Math.random() * 1.5 + 0.8) + 'rem';
+            el.style.opacity = Math.random() * 0.5 + 0.1;
+            container.appendChild(el);
+        }
+
+        function updateCountryInfo() {
+            const code = document.getElementById('country').value;
+            const country = countries.find(c => c.code === code);
+            const display = document.getElementById('countryDisplay');
+            
+            if (country) {
+                const distanceText = country.distance === 0 
+                    ? (currentLang === 'en' ? "🍀 You're home!" : "🍀 Вы дома!")
+                    : (currentLang === 'en' 
+                        ? `${country.distance} km from Ireland` 
+                        : `${country.distance} км от Ирландии`);
+                
+                display.innerHTML = `
+                    <i class="fas fa-map-marker-alt"></i> 
+                    ${country.name} 
+                    <span class="distance-badge">${distanceText}</span>
+                `;
+            }
+        }
+
+        function switchLang(lang) {
+            currentLang = lang;
+            
+            // Update buttons
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update all translatable elements
+            document.querySelectorAll('[data-en]').forEach(el => {
+                el.textContent = el.getAttribute(`data-${lang}`);
+            });
+            
+            updateCountryInfo();
+            
+            // Update chart if exists
+            if (myChart) {
+                runCalculation();
+            }
+        }
 
         function calculateMagic() {
             const resultsDiv = document.getElementById('results');
@@ -401,49 +750,72 @@
                 loader.style.display = 'none';
                 content.style.opacity = '1';
                 runCalculation();
-            }, 1500);
+            }, 2000);
         }
 
         function runCalculation() {
             const country = document.getElementById('country').value;
             const hasRainbow = document.getElementById('rainbow').checked;
             const faith = parseInt(document.getElementById('faith').value);
+            const countryData = countries.find(c => c.code === country);
 
-            let baseLuck = Math.floor(Math.random() * 20) + 10;
-            let goldChance = baseLuck;
-
-            if (country === 'ireland') goldChance += 40;
-            if (country === 'usa') goldChance += 15;
-            if (country === 'russia') goldChance += 5;
-            if (country === 'mars') goldChance -= 10;
-
-            if (hasRainbow) goldChance += 35;
-            goldChance += (faith / 5);
-
+            // Calculate base chance
+            let goldChance = 15;
+            
+            // Distance factor (closer = better)
+            if (countryData.distance === 0) goldChance += 45;
+            else if (countryData.distance < 1000) goldChance += 30;
+            else if (countryData.distance < 3000) goldChance += 20;
+            else if (countryData.distance < 6000) goldChance += 10;
+            else goldChance += 5;
+            
+            // Rainbow bonus
+            if (hasRainbow) goldChance += 30;
+            
+            // Faith bonus
+            goldChance += (faith / 4);
+            
+            // Random magical factor
+            goldChance += Math.random() * 10;
+            
             if (goldChance > 100) goldChance = 99.9;
 
-            animateValue("kpi-gold", 0, Math.floor(goldChance), 1000, "%");
-            animateValue("kpi-luck", 0, Math.floor(Math.random() * 100) + (goldChance/2), 1000, "");
+            // Animate KPIs
+            animateValue("kpi-gold", 0, Math.floor(goldChance), 1500, "%");
+            animateValue("kpi-luck", 0, Math.floor(Math.random() * 50 + goldChance), 1500, "");
             
-            let leprechaunActivity = "Низкая";
-            if (goldChance > 50) leprechaunActivity = "Средняя";
-            if (goldChance > 80) leprechaunActivity = "Критическая!";
-            document.getElementById('kpi-leprechaun').innerText = leprechaunActivity;
+            let activity = currentLang === 'en' ? 'Low';
+            if (goldChance > 40) activity = currentLang === 'en' ? 'Medium' : 'Средняя';
+            if (goldChance > 70) activity = currentLang === 'en' ? 'High' : 'Высокая';
+            if (goldChance > 90) activity = currentLang === 'en' ? 'CRITICAL! ' : 'КРИТИЧЕСКАЯ! 🍀';
+            
+            document.getElementById('kpi-leprechaun').textContent = activity;
 
+            // Magic message
+            const messages = {
+                en: {
+                    high: "<strong>AMAZING!</strong> The stars align perfectly! Wear green, follow the rainbow, and listen for jig music. Gold is near!",
+                    medium: "Good vibes detected! Your chances are decent. Look for four-leaf clovers and keep your eyes on the horizon.",
+                    low: "The magic is weak today. Try increasing your belief or planning a trip to Ireland. Every journey starts with a dream!"
+                },
+                ru: {
+                    high: "<strong>УДИВИТЕЛЬНО!</strong> Звезды сошлись! Наденьте зеленое, следуйте за радугой и прислушайтесь к ирландской музыке. Золото близко!",
+                    medium: "Хорошая энергетика! Ваши шансы неплохие. Ищите четырехлистный клевер и следите за горизонтом.",
+                    low: "Магия сегодня слаба. Попробуйте увеличить веру в чудеса или спланируйте поездку в Ирландию. Каждое путешествие начинается с мечты!"
+                }
+            };
+            
             const msgBox = document.getElementById('magicText');
-            if (goldChance > 85) {
-                msgBox.innerHTML = "<strong>ВНИМАНИЕ!</strong> Вероятность обнаружения золота критически высока. Рекомендуется надеть зеленую одежду и искать под дубом.";
-                msgBox.style.borderColor = "#2ecc71";
-                launchConfetti();
-            } else if (goldChance > 50) {
-                msgBox.innerHTML = "Шансы неплохие. Ищите радугу на горизонте и не забывайте улыбаться.";
-                msgBox.style.borderColor = "#f1c40f";
-            } else {
-                msgBox.innerHTML = "Магический фон слабый. Попробуйте увеличить веру в чудеса или переехать в Ирландию.";
-                msgBox.style.borderColor = "#e74c3c";
-            }
+            let msgKey = 'low';
+            if (goldChance > 70) msgKey = 'high';
+            else if (goldChance > 40) msgKey = 'medium';
+            
+            msgBox.innerHTML = messages[currentLang][msgKey];
+            msgBox.style.borderColor = goldChance > 70 ? '#2ecc71' : (goldChance > 40 ? '#f1c40f' : '#e74c3c');
 
-            updateChart(goldChance, hasRainbow ? 90 : 20, faith);
+            if (goldChance > 85) launchConfetti();
+            
+            updateChart(goldChance, hasRainbow ? 85 : 25, faith, countryData.distance);
         }
 
         function animateValue(id, start, end, duration, suffix) {
@@ -453,32 +825,37 @@
                 if (!startTimestamp) startTimestamp = timestamp;
                 const progress = Math.min((timestamp - startTimestamp) / duration, 1);
                 obj.innerHTML = Math.floor(progress * (end - start) + start) + suffix;
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                }
+                if (progress < 1) window.requestAnimationFrame(step);
             };
             window.requestAnimationFrame(step);
         }
 
-        function updateChart(gold, rainbowQuality, faith) {
+        function updateChart(gold, rainbow, faith, distance) {
             const ctx = document.getElementById('magicChart').getContext('2d');
             
-            if (myChart) {
-                myChart.destroy();
-            }
+            if (myChart) myChart.destroy();
 
-            // ИСПРАВЛЕНИЕ: Добавлен ключ 'data'
+            const labels = currentLang === 'en' 
+                ? ['Gold Probability', 'Rainbow Quality', 'Belief Level', 'Leprechaun Proximity', 'Magic Field']
+                : ['Вероятность золота', 'Качество радуги', 'Уровень веры', 'Близость лепрекона', 'Магическое поле'];
+
+            const proximity = Math.max(0, 100 - (distance / 200));
+            
             myChart = new Chart(ctx, {
                 type: 'radar',
-                data: { 
-                    labels: ['Вероятность Золота', 'Качество Радуги', 'Уровень Веры', 'Близость Лепрекона', 'Магический Фон'],
+                data: {
+                    labels: labels,
                     datasets: [{
-                        label: 'Показатели Удачи',
-                        data: [gold, rainbowQuality, faith, Math.random() * 100, Math.random() * 100],
+                        label: currentLang === 'en' ? 'Luck Indicators' : 'Показатели удачи',
+                        data: [gold, rainbow, faith, proximity, Math.random() * 40 + 30],
                         backgroundColor: 'rgba(46, 204, 113, 0.4)',
                         borderColor: '#2ecc71',
                         pointBackgroundColor: '#f1c40f',
-                        borderWidth: 2
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#f1c40f',
+                        borderWidth: 3,
+                        pointRadius: 5
                     }]
                 },
                 options: {
@@ -486,37 +863,72 @@
                     maintainAspectRatio: false,
                     scales: {
                         r: {
-                            angleLines: { color: 'rgba(255,255,255,0.1)' },
-                            grid: { color: 'rgba(255,255,255,0.1)' },
-                            pointLabels: { color: '#ecf0f1', font: { size: 12 } },
-                            ticks: { display: false, backdropColor: 'transparent' }
+                            angleLines: { color: 'rgba(255,255,255,0.1)', lineWidth: 1 },
+                            grid: { color: 'rgba(255,255,255,0.15)' },
+                            pointLabels: { 
+                                color: '#ecf0f1', 
+                                font: { size: 11, family: 'Montserrat' },
+                                padding: 10
+                            },
+                            ticks: { 
+                                display: true, 
+                                backdropColor: 'transparent',
+                                color: 'rgba(255,255,255,0.5)',
+                                stepSize: 25
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100
                         }
                     },
                     plugins: {
-                        legend: { display: false }
+                        legend: { 
+                            display: true,
+                            labels: { color: '#ecf0f1', font: { family: 'Montserrat' } }
+                        }
+                    },
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeOutQuart'
                     }
                 }
             });
         }
 
         function launchConfetti() {
-            var duration = 3 * 1000;
-            var animationEnd = Date.now() + duration;
-            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+            const duration = 3000;
+            const end = Date.now() + duration;
 
-            var random = function(min, max) { return Math.random() * (max - min) + min; }
+            (function frame() {
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#2ecc71', '#f1c40f', '#ffffff']
+                });
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#2ecc71', '#f1c40f', '#ffffff']
+                });
 
-            var interval = setInterval(function() {
-                var timeLeft = animationEnd - Date.now();
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+        }
 
-                if (timeLeft <= 0) {
-                    return clearInterval(interval);
-                }
-
-                var particleCount = 50 * (timeLeft / duration);
-                confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.1, 0.3), y: Math.random() - 0.2 }, colors: ['#2ecc71', '#f1c40f'] }));
-                confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.7, 0.9), y: Math.random() - 0.2 }, colors: ['#2ecc71', '#f1c40f'] }));
-            }, 250);
+        function surprise() {
+            const surprises = {
+                en: ["Top o' the morning!", "Luck be with you!", "Find that gold!", "Sláinte!"],
+                ru: ["Доброго утра!", "Удачи тебе!", "Найди золото!", "Слава Ирландии!"]
+            };
+            
+            const msgs = surprises[currentLang];
+            const msg = msgs[Math.floor(Math.random() * msgs.length)];
+            
+            alert('🎩 ' + msg + ' 🍀');
+            launchConfetti();
         }
     </script>
 </body>
