@@ -1,74 +1,545 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-<title>Lucky Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>St. Patrick's Magic | Калькулятор Золота</title>
+    
+    <!-- Подключаем шрифты и иконки -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Подключаем библиотеки для графиков и эффектов -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 
-<script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary-green: #2ecc71;
+            --dark-green: #27ae60;
+            --gold: #f1c40f;
+            --dark-bg: #0f2027;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-color: #ecf0f1;
+        }
 
-<style>
-body{
-transition:0.5s;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-.patrick{
-background: linear-gradient(135deg,#022c22,#064e3b,#065f46);
-}
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
 
-.card{
-background: rgba(255,255,255,0.05);
-backdrop-filter: blur(10px);
-border-radius:20px;
-padding:20px;
-}
-</style>
+        /* Анимированный фон (падающие клеверы) */
+        .background-fx {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
 
+        .clover {
+            position: absolute;
+            color: rgba(46, 204, 113, 0.1);
+            font-size: 2rem;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(100vh) rotate(360deg); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Заголовок */
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 1s ease;
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 3.5rem;
+            background: linear-gradient(to right, var(--primary-green), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(46, 204, 113, 0.5);
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #bdc3c7;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+
+        /* Сетка макета */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Карточки (Glassmorphism) */
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-green);
+        }
+
+        /* Форма */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        select, .checkbox-wrapper {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: white;
+            font-family: inherit;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        select:focus {
+            border-color: var(--primary-green);
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.3);
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: #444;
+            border-radius: 25px;
+            transition: 0.3s;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        input[type="checkbox"]:checked + .toggle-switch {
+            background: var(--primary-green);
+        }
+
+        input[type="checkbox"]:checked + .toggle-switch::after {
+            transform: translateX(24px);
+        }
+
+        input[type="checkbox"] {
+            display: none;
+        }
+
+        button.btn-calc {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(45deg, var(--dark-green), var(--primary-green));
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+        }
+
+        button.btn-calc:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6);
+        }
+
+        /* Результаты */
+        .results-section {
+            display: none; /* Скрыто по умолчанию */
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: rgba(0,0,0,0.2);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid var(--gold);
+        }
+
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gold);
+            font-family: 'Cinzel', serif;
+        }
+
+        .kpi-label {
+            font-size: 0.9rem;
+            color: #bdc3c7;
+            margin-top: 0.5rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .magic-message {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(241, 196, 15, 0.1);
+            border-left: 4px solid var(--gold);
+            border-radius: 5px;
+            font-style: italic;
+        }
+
+        /* Анимации */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255,255,255,0.1);
+            border-top: 5px solid var(--gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    </style>
 </head>
+<body>
 
-<body class="bg-slate-900 text-white">
+    <!-- Фоновые эффекты -->
+    <div class="background-fx" id="bg-fx"></div>
 
-<div style="padding:40px">
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-shamrock"></i> Leprechaun AI</h1>
+            <p class="subtitle">Система анализа вероятности обнаружения золота</p>
+        </header>
 
-<button onclick="toggle()" style="padding:12px 20px;border-radius:12px;background:#1e293b">
-🍀 Toggle Saint Patrick Mood
-</button>
+        <div class="dashboard-grid">
+            
+            <!-- Левая колонка: Ввод данных -->
+            <div class="card">
+                <h2 style="margin-bottom: 1.5rem; color: var(--primary-green);">Параметры поиска</h2>
+                
+                <form id="magicForm">
+                    <div class="form-group">
+                        <label>Локация (Страна)</label>
+                        <select id="country">
+                            <option value="ireland">Ирландия (Дублин)</option>
+                            <option value="usa">США (Бостон)</option>
+                            <option value="russia">Россия (Москва)</option>
+                            <option value="uk">Великобритания (Лондон)</option>
+                            <option value="canada">Канада (Монреаль)</option>
+                            <option value="australia">Австралия (Сидней)</option>
+                            <option value="mars">Марс (Колония)</option>
+                        </select>
+                    </div>
 
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:30px">
+                    <div class="form-group">
+                        <label>Атмосферные явления</label>
+                        <label class="checkbox-wrapper">
+                            <span>Видна радуга?</span>
+                            <input type="checkbox" id="rainbow">
+                            <div class="toggle-switch"></div>
+                        </label>
+                    </div>
 
-<div class="card">
-<h2>🌈 Rainbows today</h2>
-<h1 id="rainbow" style="font-size:40px"></h1>
-</div>
+                    <div class="form-group">
+                        <label>Уровень веры в чудеса</label>
+                        <input type="range" id="faith" min="1" max="100" value="50" style="width:100%; accent-color: var(--gold);">
+                        <div style="text-align: right; font-size: 0.8rem; color: #888;">Текущее значение: <span id="faithVal">50</span>%</div>
+                    </div>
 
-<div class="card">
-<h2>✨ Luck Index</h2>
-<h1 id="luck" style="font-size:40px"></h1>
-</div>
+                    <button type="button" class="btn-calc" onclick="calculateMagic()">
+                        <i class="fas fa-magic"></i> Рассчитать Шанс
+                    </button>
+                </form>
+            </div>
 
-<div class="card">
-<h2>🪙 Gold probability</h2>
-<h1 id="gold" style="font-size:40px"></h1>
-</div>
+            <!-- Правая колонка: Результаты -->
+            <div class="card results-section" id="results">
+                <h2 style="margin-bottom: 1.5rem; color: var(--gold);">Аналитика Удачи</h2>
+                
+                <div class="loader" id="loader">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 10px; color: var(--primary-green);">Связь с лепреконами...</p>
+                </div>
 
-</div>
+                <div id="content">
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-value" id="kpi-gold">0%</div>
+                            <div class="kpi-label">Шанс Золота</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-value" id="kpi-luck">0</div>
+                            <div class="kpi-label">Индекс Удачи</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-value" id="kpi-leprechaun">Низкий</div>
+                            <div class="kpi-label">Активность Лепреконов</div>
+                        </div>
+                    </div>
 
-</div>
+                    <div class="chart-container">
+                        <canvas id="magicChart"></canvas>
+                    </div>
 
-<script>
+                    <div class="magic-message" id="magicText">
+                        Ожидание данных...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-function gen(){
-document.getElementById("rainbow").innerText=Math.floor(Math.random()*50)
-document.getElementById("luck").innerText=Math.floor(Math.random()*100)+"%"
-document.getElementById("gold").innerText=Math.floor(Math.random()*10)+"%"
-}
+    <script>
+        // Генерация падающих клеверов
+        function createClovers() {
+            const container = document.getElementById('bg-fx');
+            for(let i=0; i<20; i++) {
+                const clover = document.createElement('div');
+                clover.classList.add('clover');
+                clover.innerHTML = '<i class="fas fa-leaf"></i>';
+                clover.style.left = Math.random() * 100 + 'vw';
+                clover.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                clover.style.fontSize = (Math.random() * 2 + 1) + 'rem';
+                container.appendChild(clover);
+            }
+        }
+        createClovers();
 
-gen()
-setInterval(gen,3000)
+        // Обновление ползунка
+        document.getElementById('faith').addEventListener('input', function(e) {
+            document.getElementById('faithVal').innerText = e.target.value;
+        });
 
-function toggle(){
-document.body.classList.toggle("patrick")
-}
+        let myChart = null;
 
-</script>
+        function calculateMagic() {
+            const resultsDiv = document.getElementById('results');
+            const loader = document.getElementById('loader');
+            const content = document.getElementById('content');
+            
+            // Сброс и показ лоадера
+            resultsDiv.style.display = 'block';
+            content.style.opacity = '0.3';
+            loader.style.display = 'block';
 
+            // Имитация задержки вычислений
+            setTimeout(() => {
+                loader.style.display = 'none';
+                content.style.opacity = '1';
+                runCalculation();
+            }, 1500);
+        }
+
+        function runCalculation() {
+            // Получение данных
+            const country = document.getElementById('country').value;
+            const hasRainbow = document.getElementById('rainbow').checked;
+            const faith = parseInt(document.getElementById('faith').value);
+
+            // Логика расчета
+            let baseLuck = Math.floor(Math.random() * 20) + 10; // База 10-30%
+            let goldChance = baseLuck;
+
+            // Множители страны
+            if (country === 'ireland') goldChance += 40;
+            if (country === 'usa') goldChance += 15;
+            if (country === 'russia') goldChance += 5; // Суровый климат
+            if (country === 'mars') goldChance -= 10; // Слишком далеко
+
+            // Множитель радуги
+            if (hasRainbow) goldChance += 35;
+
+            // Множитель веры
+            goldChance += (faith / 5);
+
+            // Ограничение 100%
+            if (goldChance > 100) goldChance = 99.9;
+
+            // Обновление KPI
+            animateValue("kpi-gold", 0, Math.floor(goldChance), 1000, "%");
+            animateValue("kpi-luck", 0, Math.floor(Math.random() * 100) + (goldChance/2), 1000, "");
+            
+            let leprechaunActivity = "Низкая";
+            if (goldChance > 50) leprechaunActivity = "Средняя";
+            if (goldChance > 80) leprechaunActivity = "Критическая!";
+            document.getElementById('kpi-leprechaun').innerText = leprechaunActivity;
+
+            // Текст сообщения
+            const msgBox = document.getElementById('magicText');
+            if (goldChance > 85) {
+                msgBox.innerHTML = "<strong>ВНИМАНИЕ!</strong> Вероятность обнаружения золота критически высока. Рекомендуется надеть зеленую одежду и искать под дубом.";
+                msgBox.style.borderColor = "#2ecc71";
+                launchConfetti();
+            } else if (goldChance > 50) {
+                msgBox.innerHTML = "Шансы неплохие. Ищите радугу на горизонте и не забывайте улыбаться.";
+                msgBox.style.borderColor = "#f1c40f";
+            } else {
+                msgBox.innerHTML = "Магический фон слабый. Попробуйте увеличить веру в чудеса или переехать в Ирландию.";
+                msgBox.style.borderColor = "#e74c3c";
+            }
+
+            // Построение графика
+            updateChart(goldChance, hasRainbow ? 90 : 20, faith);
+        }
+
+        function animateValue(id, start, end, duration, suffix) {
+            const obj = document.getElementById(id);
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start) + suffix;
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        function updateChart(gold, rainbowQuality, faith) {
+            const ctx = document.getElementById('magicChart').getContext('2d');
+            
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            myChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Вероятность Золота', 'Качество Радуги', 'Уровень Веры', 'Близость Лепрекона', 'Магический Фон'],
+                    datasets: [{
+                        label: 'Показатели Удачи',
+                        data: [gold, rainbowQuality, faith, Math.random() * 100, Math.random() * 100],
+                        backgroundColor: 'rgba(46, 204, 113, 0.4)',
+                        borderColor: '#2ecc71',
+                        pointBackgroundColor: '#f1c40f',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255,255,255,0.1)' },
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            pointLabels: { color: '#ecf0f1', font: { size: 12 } },
+                            ticks: { display: false, backdropColor: 'transparent' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        function launchConfetti() {
+            var duration = 3 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            var random = function(min, max) { return Math.random() * (max - min) + min; }
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.1, 0.3), y: Math.random() - 0.2 }, colors: ['#2ecc71', '#f1c40f'] }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.7, 0.9), y: Math.random() - 0.2 }, colors: ['#2ecc71', '#f1c40f'] }));
+            }, 250);
+        }
+    </script>
 </body>
 </html>
