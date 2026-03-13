@@ -207,11 +207,6 @@
             outline: none;
             transition: 0.3s;
             cursor: pointer;
-            appearance: none; /* Убираем стандартную стрелку */
-            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%232ecc71%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-            background-repeat: no-repeat;
-            background-position: right 1rem top 50%;
-            background-size: 0.65rem auto;
         }
 
         select:focus {
@@ -621,23 +616,15 @@
             { code: 'bf', name: 'Burkina Faso', distance: 5000 },
             { code: 'ml', name: 'Mali', distance: 4500 },
             { code: 'mr', name: 'Mauritania', distance: 3800 },
-            { code: 'eh', name: 'W. Sahara', distance: 3500 },
             { code: 'co', name: 'Colombia', distance: 8500 },
             { code: 've', name: 'Venezuela', distance: 7500 },
             { code: 'gy', name: 'Guyana', distance: 7200 },
             { code: 'sr', name: 'Suriname', distance: 7400 },
-            { code: 'gf', name: 'Fr. Guiana', distance: 7600 },
             { code: 'ec', name: 'Ecuador', distance: 9500 },
             { code: 'pe', name: 'Peru', distance: 10500 },
             { code: 'bo', name: 'Bolivia', distance: 10800 },
             { code: 'py', name: 'Paraguay', distance: 11200 },
             { code: 'uy', name: 'Uruguay', distance: 11500 },
-            { code: 'fk', name: 'Falklands', distance: 13000 },
-            { code: 'gs', name: 'S. Georgia', distance: 14000 },
-            { code: 'bv', name: 'Bouvet Is.', distance: 14500 },
-            { code: 'tf', name: 'Fr. S. Lands', distance: 13500 },
-            { code: 'hm', name: 'Heard Is.', distance: 18000 },
-            { code: 'aq', name: 'Antarctica', distance: 15000 },
             { code: 'gl', name: 'Greenland', distance: 3500 },
             { code: 'is', name: 'Iceland', distance: 1500 },
             { code: 'fo', name: 'Faroe Is.', distance: 1200 },
@@ -751,17 +738,31 @@
         let currentLang = 'en';
         let myChart = null;
 
-        // Инициализация
-        document.addEventListener('DOMContentLoaded', () => {
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, initializing...');
             populateCountries();
             createMagicalEffects();
             updateCountryInfo();
-            moveHat(); // Запуск движения шляпы
-            setInterval(moveHat, 6000); // Движение каждые 6 секунд
+            moveHat();
+            setInterval(moveHat, 6000);
+            
+            // Обновление значения ползунка
+            document.getElementById('faith').addEventListener('input', function(e) {
+                document.getElementById('faithVal').textContent = e.target.value;
+            });
         });
 
         function populateCountries() {
             const select = document.getElementById('country');
+            if (!select) {
+                console.error('Country select not found!');
+                return;
+            }
+            
+            // Очищаем существующие опции
+            select.innerHTML = '';
+            
             // Сортировка по алфавиту
             countries.sort((a, b) => a.name.localeCompare(b.name)).forEach(country => {
                 const option = document.createElement('option');
@@ -772,6 +773,8 @@
                 option.textContent = `${country.name} (${distText})`;
                 select.appendChild(option);
             });
+            
+            console.log('Countries populated:', select.options.length);
         }
 
         function createMagicalEffects() {
@@ -798,7 +801,7 @@
             const country = countries.find(c => c.code === code);
             const display = document.getElementById('countryDisplay');
             
-            if (country) {
+            if (country && display) {
                 const isHome = country.distance === 0;
                 const distText = isHome
                     ? (currentLang === 'en' ? "🍀 You're home!" : "🍀 Вы дома!")
@@ -816,22 +819,33 @@
 
         // Исправленная функция смены языка
         function setLanguage(lang) {
+            console.log('Switching language to:', lang);
             currentLang = lang;
             
             // Обновляем кнопки
-            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
-            document.getElementById('btn-ru').classList.toggle('active', lang === 'ru');
+            const btnEn = document.getElementById('btn-en');
+            const btnRu = document.getElementById('btn-ru');
             
-            // Обновляем текст
-            document.querySelectorAll('[data-en]').forEach(el => {
-                el.textContent = el.getAttribute(`data-${lang}`);
+            if (btnEn) btnEn.classList.toggle('active', lang === 'en');
+            if (btnRu) btnRu.classList.toggle('active', lang === 'ru');
+            
+            // Обновляем все текстовые элементы
+            document.querySelectorAll('[data-en]').forEach(function(el) {
+                const text = el.getAttribute('data-' + lang);
+                if (text) {
+                    el.textContent = text;
+                }
             });
             
-            // Обновляем информацию о стране и график (если есть)
+            // Обновляем информацию о стране
             updateCountryInfo();
-            populateCountries(); // Пересоздать список с новым языком
             
-            if (document.getElementById('results').style.display === 'block') {
+            // Пересоздаем список стран с новым языком
+            populateCountries();
+            
+            // Если результаты уже показаны, обновляем их
+            const resultsDiv = document.getElementById('results');
+            if (resultsDiv && resultsDiv.style.display === 'block') {
                 runCalculation();
             }
         }
@@ -841,22 +855,33 @@
             const loader = document.getElementById('loader');
             const content = document.getElementById('content');
             
-            resultsDiv.style.display = 'block';
-            content.style.opacity = '0.3';
-            loader.style.display = 'block';
+            if (resultsDiv) resultsDiv.style.display = 'block';
+            if (content) content.style.opacity = '0.3';
+            if (loader) loader.style.display = 'block';
 
-            setTimeout(() => {
-                loader.style.display = 'none';
-                content.style.opacity = '1';
+            setTimeout(function() {
+                if (loader) loader.style.display = 'none';
+                if (content) content.style.opacity = '1';
                 runCalculation();
             }, 2000);
         }
 
         function runCalculation() {
-            const country = document.getElementById('country').value;
-            const hasRainbow = document.getElementById('rainbow').checked;
-            const faith = parseInt(document.getElementById('faith').value);
+            const countrySelect = document.getElementById('country');
+            const rainbowCheck = document.getElementById('rainbow');
+            const faithInput = document.getElementById('faith');
+            
+            if (!countrySelect || !rainbowCheck || !faithInput) {
+                console.error('Form elements not found!');
+                return;
+            }
+            
+            const country = countrySelect.value;
+            const hasRainbow = rainbowCheck.checked;
+            const faith = parseInt(faithInput.value);
             const countryData = countries.find(c => c.code === country);
+
+            if (!countryData) return;
 
             let goldChance = 15;
             
@@ -880,7 +905,8 @@
             if (goldChance > 70) activity = currentLang === 'en' ? 'High' : 'Высокая';
             if (goldChance > 90) activity = currentLang === 'en' ? 'CRITICAL! ' : 'КРИТИЧЕСКАЯ! 🍀';
             
-            document.getElementById('kpi-leprechaun').textContent = activity;
+            const leprechaunEl = document.getElementById('kpi-leprechaun');
+            if (leprechaunEl) leprechaunEl.textContent = activity;
 
             const messages = {
                 en: {
@@ -900,8 +926,10 @@
             if (goldChance > 70) msgKey = 'high';
             else if (goldChance > 40) msgKey = 'medium';
             
-            msgBox.innerHTML = messages[currentLang][msgKey];
-            msgBox.style.borderColor = goldChance > 70 ? '#2ecc71' : (goldChance > 40 ? '#f1c40f' : '#e74c3c');
+            if (msgBox) {
+                msgBox.innerHTML = messages[currentLang][msgKey];
+                msgBox.style.borderColor = goldChance > 70 ? '#2ecc71' : (goldChance > 40 ? '#f1c40f' : '#e74c3c');
+            }
 
             if (goldChance > 85) launchConfetti();
             
@@ -910,8 +938,10 @@
 
         function animateValue(id, start, end, duration, suffix) {
             const obj = document.getElementById(id);
+            if (!obj) return;
+            
             let startTimestamp = null;
-            const step = (timestamp) => {
+            const step = function(timestamp) {
                 if (!startTimestamp) startTimestamp = timestamp;
                 const progress = Math.min((timestamp - startTimestamp) / duration, 1);
                 obj.innerHTML = Math.floor(progress * (end - start) + start) + suffix;
@@ -921,9 +951,14 @@
         }
 
         function updateChart(gold, rainbow, faith, distance) {
-            const ctx = document.getElementById('magicChart').getContext('2d');
+            const canvas = document.getElementById('magicChart');
+            if (!canvas) return;
             
-            if (myChart) myChart.destroy();
+            const ctx = canvas.getContext('2d');
+            
+            if (myChart) {
+                myChart.destroy();
+            }
 
             const labels = currentLang === 'en' 
                 ? ['Gold Probability', 'Rainbow Quality', 'Belief Level', 'Leprechaun Proximity', 'Magic Field']
@@ -931,6 +966,7 @@
 
             const proximity = Math.max(0, 100 - (distance / 200));
             
+            // ИСПРАВЛЕНО: Добавлен ключ 'data:'
             myChart = new Chart(ctx, {
                 type: 'radar',
                 data: {
@@ -1024,19 +1060,18 @@
         // Логика движения шляпы
         function moveHat() {
             const hat = document.getElementById('magicHat');
+            if (!hat) return;
+            
             const corners = [
-                { top: '20px', left: '20px', right: 'auto', bottom: 'auto' }, // Top Left
-                { top: '20px', left: 'auto', right: '20px', bottom: 'auto' }, // Top Right
-                { top: 'auto', left: '20px', right: 'auto', bottom: '20px' }, // Bottom Left
-                { top: 'auto', left: 'auto', right: '20px', bottom: '20px' }  // Bottom Right
+                { top: '20px', left: '20px', right: 'auto', bottom: 'auto' },
+                { top: '20px', left: 'auto', right: '20px', bottom: 'auto' },
+                { top: 'auto', left: '20px', right: 'auto', bottom: '20px' },
+                { top: 'auto', left: 'auto', right: '20px', bottom: '20px' }
             ];
             
             const randomCorner = corners[Math.floor(Math.random() * corners.length)];
-            
-            // Применяем стили
             Object.assign(hat.style, randomCorner);
             
-            // Небольшой поворот для живости
             const rotate = Math.random() > 0.5 ? 'rotate(10deg)' : 'rotate(-10deg)';
             hat.style.transform = rotate;
         }
