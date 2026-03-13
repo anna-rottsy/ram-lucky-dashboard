@@ -39,7 +39,7 @@
             position: relative;
         }
 
-        /* Анимированный фон (падающие клеверы) */
+        /* Анимированный фон */
         .background-fx {
             position: fixed;
             top: 0;
@@ -70,7 +70,6 @@
             z-index: 1;
         }
 
-        /* Заголовок */
         header {
             text-align: center;
             margin-bottom: 3rem;
@@ -93,7 +92,6 @@
             letter-spacing: 2px;
         }
 
-        /* Сетка макета */
         .dashboard-grid {
             display: grid;
             grid-template-columns: 1fr 2fr;
@@ -104,7 +102,6 @@
             .dashboard-grid { grid-template-columns: 1fr; }
         }
 
-        /* Карточки (Glassmorphism) */
         .card {
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
@@ -120,7 +117,6 @@
             border-color: var(--primary-green);
         }
 
-        /* Форма */
         .form-group {
             margin-bottom: 1.5rem;
         }
@@ -210,9 +206,8 @@
             box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6);
         }
 
-        /* Результаты */
         .results-section {
-            display: none; /* Скрыто по умолчанию */
+            display: none;
             animation: fadeInUp 0.8s ease;
         }
 
@@ -259,7 +254,6 @@
             font-style: italic;
         }
 
-        /* Анимации */
         @keyframes fadeInDown {
             from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -289,7 +283,6 @@
 </head>
 <body>
 
-    <!-- Фоновые эффекты -->
     <div class="background-fx" id="bg-fx"></div>
 
     <div class="container">
@@ -300,7 +293,6 @@
 
         <div class="dashboard-grid">
             
-            <!-- Левая колонка: Ввод данных -->
             <div class="card">
                 <h2 style="margin-bottom: 1.5rem; color: var(--primary-green);">Параметры поиска</h2>
                 
@@ -339,7 +331,6 @@
                 </form>
             </div>
 
-            <!-- Правая колонка: Результаты -->
             <div class="card results-section" id="results">
                 <h2 style="margin-bottom: 1.5rem; color: var(--gold);">Аналитика Удачи</h2>
                 
@@ -377,7 +368,6 @@
     </div>
 
     <script>
-        // Генерация падающих клеверов
         function createClovers() {
             const container = document.getElementById('bg-fx');
             for(let i=0; i<20; i++) {
@@ -392,7 +382,6 @@
         }
         createClovers();
 
-        // Обновление ползунка
         document.getElementById('faith').addEventListener('input', function(e) {
             document.getElementById('faithVal').innerText = e.target.value;
         });
@@ -404,12 +393,10 @@
             const loader = document.getElementById('loader');
             const content = document.getElementById('content');
             
-            // Сброс и показ лоадера
             resultsDiv.style.display = 'block';
             content.style.opacity = '0.3';
             loader.style.display = 'block';
 
-            // Имитация задержки вычислений
             setTimeout(() => {
                 loader.style.display = 'none';
                 content.style.opacity = '1';
@@ -418,31 +405,23 @@
         }
 
         function runCalculation() {
-            // Получение данных
             const country = document.getElementById('country').value;
             const hasRainbow = document.getElementById('rainbow').checked;
             const faith = parseInt(document.getElementById('faith').value);
 
-            // Логика расчета
-            let baseLuck = Math.floor(Math.random() * 20) + 10; // База 10-30%
+            let baseLuck = Math.floor(Math.random() * 20) + 10;
             let goldChance = baseLuck;
 
-            // Множители страны
             if (country === 'ireland') goldChance += 40;
             if (country === 'usa') goldChance += 15;
-            if (country === 'russia') goldChance += 5; // Суровый климат
-            if (country === 'mars') goldChance -= 10; // Слишком далеко
+            if (country === 'russia') goldChance += 5;
+            if (country === 'mars') goldChance -= 10;
 
-            // Множитель радуги
             if (hasRainbow) goldChance += 35;
-
-            // Множитель веры
             goldChance += (faith / 5);
 
-            // Ограничение 100%
             if (goldChance > 100) goldChance = 99.9;
 
-            // Обновление KPI
             animateValue("kpi-gold", 0, Math.floor(goldChance), 1000, "%");
             animateValue("kpi-luck", 0, Math.floor(Math.random() * 100) + (goldChance/2), 1000, "");
             
@@ -451,7 +430,6 @@
             if (goldChance > 80) leprechaunActivity = "Критическая!";
             document.getElementById('kpi-leprechaun').innerText = leprechaunActivity;
 
-            // Текст сообщения
             const msgBox = document.getElementById('magicText');
             if (goldChance > 85) {
                 msgBox.innerHTML = "<strong>ВНИМАНИЕ!</strong> Вероятность обнаружения золота критически высока. Рекомендуется надеть зеленую одежду и искать под дубом.";
@@ -465,7 +443,6 @@
                 msgBox.style.borderColor = "#e74c3c";
             }
 
-            // Построение графика
             updateChart(goldChance, hasRainbow ? 90 : 20, faith);
         }
 
@@ -490,9 +467,10 @@
                 myChart.destroy();
             }
 
+            // ИСПРАВЛЕНИЕ: Добавлен ключ 'data'
             myChart = new Chart(ctx, {
                 type: 'radar',
-                data: {
+                data: { 
                     labels: ['Вероятность Золота', 'Качество Радуги', 'Уровень Веры', 'Близость Лепрекона', 'Магический Фон'],
                     datasets: [{
                         label: 'Показатели Удачи',
